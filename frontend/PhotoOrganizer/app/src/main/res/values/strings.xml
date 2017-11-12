@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">PhotoOrganizer</string>
+    <string name="email">Email</string>
+    <string name="name">Name</string>
+    <string name="password">Password</string>
+    <string name="register">REGISTER</string>
+    <string name="todo">TODO</string>
+    <string name="management">management</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+    <string name="group">Group</string>
+    <string name="settings">Settings</string>
+    <string name="new_group">NEW GROUP</string>
+    <string name="group_name">Group name:</string>
+    <string name="group_duration">Group duration:</string>
+    <string name="minutes">minutes</string>
+    <string name="create">CREATE</string>
+    <string name="already_registered">Already registered?</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_new">SIGN IN</string>
+    <string name="for_sign_up">Not a member?</string>
+    <string name="register_new">Register</string>
+    <string name="signOut">SIGN OUT</string>
+</resources>
