@@ -10,6 +10,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText userPassword;
     private TextView textName;
     private TextView textAlreadyReg;
+    private ProgressBar progressBar;
 
     //Initialize Firebase parameters
     private FirebaseAuth mFirebaseAuth;
@@ -59,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
         userName = (EditText) findViewById(R.id.editName);
         userEmail = (EditText) findViewById(R.id.editEmail);
         userPassword = (EditText) findViewById(R.id.editPassword);
+
+        // Progress Bar
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
@@ -94,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
                     textAlreadyReg.setText(R.string.already_registered);
                     signInButton.setText(R.string.sign_in);
                 }
-                mFirebaseAuth = FirebaseAuth.getInstance();
             }
         });
     }
@@ -106,30 +110,50 @@ public class MainActivity extends AppCompatActivity {
         if (mFirebaseUser != null) {
             Intent intent = new Intent(MainActivity.this, GridMenu.class);
             startActivity(intent);
+            finish();
         }
     }
 
     private void createNewAccount(final String uName, String uEmail, String uPassword) {
         Log.d(TAG, "CreateNewAccount: " + uEmail);
+        boolean valid = true;
 
-        if (!validateForm()) {
+        if (TextUtils.isEmpty(uName)) {
+            userName.setError("Required.");
+            valid = false;
+        }
+
+        if (TextUtils.isEmpty(uEmail)) {
+            userEmail.setError("Required.");
+            valid = false;
+        }
+
+        if (TextUtils.isEmpty(uPassword)) {
+            userPassword.setError("Required.");
+            valid = false;
+        }
+
+        if (!valid) {
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
         mFirebaseAuth.createUserWithEmailAndPassword(uEmail, uPassword)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "createUserWithEmail:success");
+                            Toast.makeText(MainActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
                             FirebaseUser firebaseUser = task.getResult().getUser();
                             writeNewUserToDatabase(firebaseUser.getUid(), uName, firebaseUser.getEmail());
-                            Toast.makeText(MainActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(MainActivity.this, GridMenu.class);
                             startActivity(intent);
+                            finish();
                         } else {
                             Log.d(TAG, "createUserWithEmail:failure");
-                            Toast.makeText(MainActivity.this, "User already registered", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -137,11 +161,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void signIn(String uEmail, String uPassword) {
         Log.d(TAG, "signIn: " + uEmail);
+        boolean valid = true;
 
-        if (!validateForm()) {
+        if (TextUtils.isEmpty(uEmail)) {
+            userEmail.setError("Required.");
+            valid = false;
+        }
+
+        if (TextUtils.isEmpty(uPassword)) {
+            userPassword.setError("Required.");
+            valid = false;
+        }
+
+        if (!valid) {
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
         mFirebaseAuth.signInWithEmailAndPassword(uEmail, uPassword)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -149,11 +185,13 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
                             Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(MainActivity.this, GridMenu.class);
                             startActivity(intent);
+                            finish();
                         } else {
                             Log.d(TAG, "signInWithEmail:failure");
-                            Toast.makeText(MainActivity.this, "Not registered", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -162,35 +200,5 @@ public class MainActivity extends AppCompatActivity {
     private void writeNewUserToDatabase(String userId, String name, String email) {
         User user = new User(name, email);
         mFirebaseDatabaseReference.child("users").child(userId).setValue(user);
-    }
-
-    private boolean validateForm() {
-        boolean valid = true;
-
-        String name = userName.getText().toString();
-        if (TextUtils.isEmpty(name)) {
-            userName.setError("Required.");
-            valid = false;
-        } else {
-            userName.setError(null);
-        }
-
-        String email = userEmail.getText().toString();
-        if (TextUtils.isEmpty(email)) {
-            userEmail.setError("Required.");
-            valid = false;
-        } else {
-            userEmail.setError(null);
-        }
-
-        String password = userPassword.getText().toString();
-        if (TextUtils.isEmpty(password)) {
-            userPassword.setError("Required.");
-            valid = false;
-        } else {
-            userPassword.setError(null);
-        }
-
-        return valid;
     }
 }
