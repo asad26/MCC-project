@@ -3,11 +3,10 @@ from bottle import run, post, request, response, get, route
 
 @route('/<path>',method = 'POST')
 def process(path):
-    for item in request.POST:
-        argDict = item
+    postdata = request.body.read()
     print("running "+str(path))
     try:
-        return subprocess.check_output(['python3',path+'.py', argDict],shell=False)
+        return subprocess.check_output(['python3',path+'.py', postdata],shell=False)
     except subprocess.CalledProcessError as e:
         print("Could not run function: "+path)
 
