@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,15 +13,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -108,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser != null) {
-            Intent intent = new Intent(MainActivity.this, GridMenu.class);
+            Intent intent = new Intent(MainActivity.this, GridActivity.class);
             startActivity(intent);
             finish();
         }
@@ -148,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.GONE);
                             FirebaseUser firebaseUser = task.getResult().getUser();
                             writeNewUserToDatabase(firebaseUser.getUid(), uName, firebaseUser.getEmail());
-                            Intent intent = new Intent(MainActivity.this, GridMenu.class);
+                            Intent intent = new Intent(MainActivity.this, GridActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
@@ -186,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithEmail:success");
                             Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_LONG).show();
                             progressBar.setVisibility(View.GONE);
-                            Intent intent = new Intent(MainActivity.this, GridMenu.class);
+                            Intent intent = new Intent(MainActivity.this, GridActivity.class);
                             startActivity(intent);
                             finish();
                         } else {

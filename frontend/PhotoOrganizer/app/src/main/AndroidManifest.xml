@@ -17,7 +17,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GridMenu" />
+        <activity android:name=".GridActivity" />
         <activity android:name=".CreateGroup" />
     </application>
 

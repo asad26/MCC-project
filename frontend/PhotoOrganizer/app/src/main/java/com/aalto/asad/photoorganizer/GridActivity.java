@@ -13,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
  * Created by Asad on 11/8/2017.
  */
 
-public class GridMenu extends AppCompatActivity {
+public class GridActivity extends AppCompatActivity {
 
     private static final String TAG = "MCC";
 
@@ -27,7 +27,7 @@ public class GridMenu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.grid_menu);
 
-        groupManagement = (Button) findViewById(R.id.button4);
+        groupManagement = (Button) findViewById(R.id.buttonGroup);
         signOut = (Button) findViewById(R.id.signOut);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -45,7 +45,7 @@ public class GridMenu extends AppCompatActivity {
             public void onClick(View v) {
                 mFirebaseAuth.signOut();
                 Log.d(TAG, "signOut:success");
-                Intent intent = new Intent(GridMenu.this, MainActivity.class);
+                Intent intent = new Intent(GridActivity.this, MainActivity.class);
                 startActivity(intent);
 
             }

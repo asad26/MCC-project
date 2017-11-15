@@ -6,19 +6,20 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/textNewGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="36dp"
         android:text="@string/new_group"
-        android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintEnd_toEndOf="@+id/textView9"
-        app:layout_constraintStart_toStartOf="@+id/textView9"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/textGroupName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textGroupName"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/textGroupName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="35dp"
@@ -26,25 +27,25 @@
         android:text="@string/group_name"
         android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText4"
-        app:layout_constraintEnd_toStartOf="@+id/editText4"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editGroupName"
+        app:layout_constraintEnd_toStartOf="@+id/editGroupName"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/editGroupName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="76dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:labelFor="@+id/editText4"
+        android:labelFor="@+id/editGroupName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView9"
+        app:layout_constraintStart_toEndOf="@+id/textGroupName"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView10"
+        android:id="@+id/textDuration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="18dp"
@@ -52,40 +53,40 @@
         android:text="@string/group_duration"
         android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText5"
-        app:layout_constraintEnd_toStartOf="@+id/editText5"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDuration"
+        app:layout_constraintEnd_toStartOf="@+id/editDuration"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editText5"
+        android:id="@+id/editDuration"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="11dp"
         android:layout_marginTop="19dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:labelFor="@+id/editText5"
-        app:layout_constraintEnd_toStartOf="@+id/textView11"
-        app:layout_constraintStart_toEndOf="@+id/textView10"
-        app:layout_constraintTop_toBottomOf="@+id/editText4" />
+        android:labelFor="@+id/editDuration"
+        app:layout_constraintEnd_toStartOf="@+id/textMinutes"
+        app:layout_constraintStart_toEndOf="@+id/textDuration"
+        app:layout_constraintTop_toBottomOf="@+id/editGroupName" />
 
     <TextView
-        android:id="@+id/textView11"
+        android:id="@+id/textMinutes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"
         android:text="@string/minutes"
-        app:layout_constraintBaseline_toBaselineOf="@+id/editText5"
+        app:layout_constraintBaseline_toBaselineOf="@+id/editDuration"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/editText5" />
+        app:layout_constraintStart_toEndOf="@+id/editDuration" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/buttonCreateGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:layout_marginTop="43dp"
         android:text="@string/create"
-        app:layout_constraintEnd_toEndOf="@+id/editText5"
-        app:layout_constraintTop_toBottomOf="@+id/editText5" />
+        app:layout_constraintEnd_toEndOf="@+id/editDuration"
+        app:layout_constraintTop_toBottomOf="@+id/editDuration" />
 </android.support.constraint.ConstraintLayout>
