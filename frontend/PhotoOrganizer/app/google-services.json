@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1028528125996",
+    "firebase_url": "https://mcc-fall-2017-g18.firebaseio.com",
+    "project_id": "mcc-fall-2017-g18",
+    "storage_bucket": "mcc-fall-2017-g18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028528125996:android:82d17402eeb87f80",
+        "android_client_info": {
+          "package_name": "com.aalto.asad.photoorganizer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1028528125996-89lvr4ic5vbth05ds00svh409j959ap7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3XWJlgZiHfyL1q3N3qa4FevgsDNfQyRs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

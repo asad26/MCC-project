@@ -21,4 +21,6 @@
     <string name="for_sign_up">Not a member?</string>
     <string name="register_new">Register</string>
     <string name="signOut">SIGN OUT</string>
+    <string name="TextView">TextView</string>
+    <string name="low_storage_error">Detector dependencies cannot be downloaded due to low device storage</string>
 </resources>

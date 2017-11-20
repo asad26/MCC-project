@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Log.d(TAG, "createUserWithEmail:failure");
                             Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -187,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Log.d(TAG, "signInWithEmail:failure");
                             Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });

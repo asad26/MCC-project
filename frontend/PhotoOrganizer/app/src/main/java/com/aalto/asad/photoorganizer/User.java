@@ -6,8 +6,12 @@ package com.aalto.asad.photoorganizer;
 
 public class User {
 
-    private String userName;
-    private String email;
+    public String userName;
+    public String email;
+
+    public User() {
+        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
 
     public User(String username, String email) {
         this.userName = username;
