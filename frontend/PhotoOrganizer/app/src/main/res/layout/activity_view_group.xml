@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.aalto.asad.photoorganizer.ViewGroup">
+
+    <TextView
+        android:id="@+id/groupInfoTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Group Information"
+        tools:layout_editor_absoluteX="46dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <TextView
+        android:id="@+id/nameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        tools:layout_editor_absoluteX="46dp"
+        tools:layout_editor_absoluteY="64dp" />
+
+    <TextView
+        android:id="@+id/groupNameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not Implemented"
+        tools:layout_editor_absoluteX="126dp"
+        tools:layout_editor_absoluteY="64dp" />
+
+    <TextView
+        android:id="@+id/ExpirationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="17dp"
+        android:text="Expiration"
+        tools:layout_editor_absoluteX="46dp"
+        tools:layout_editor_absoluteY="105dp" />
+
+    <TextView
+        android:id="@+id/groupExpirationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not Implemented"
+        tools:layout_editor_absoluteX="126dp"
+        tools:layout_editor_absoluteY="105dp" />
+
+    <TextView
+        android:id="@+id/membersLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Members"
+        tools:layout_editor_absoluteX="46dp"
+        tools:layout_editor_absoluteY="149dp" />
+
+    <ListView
+        android:layout_width="368dp"
+        android:layout_height="281dp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="222dp" />
+
+    <Button
+        android:id="@+id/addMemberButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ADD"
+        tools:layout_editor_absoluteX="126dp"
+        tools:layout_editor_absoluteY="139dp" />
+</android.support.constraint.ConstraintLayout>

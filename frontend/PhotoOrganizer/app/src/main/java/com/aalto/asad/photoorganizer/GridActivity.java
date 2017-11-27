@@ -77,7 +77,7 @@ public class GridActivity extends AppCompatActivity {
         groupManagement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), CreateGroup.class);
+                Intent intent = new Intent(getApplicationContext(), GroupManagement.class);
                 startActivity(intent);
             }
         });
