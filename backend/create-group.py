@@ -3,7 +3,9 @@ import json
 from testconfig import config
 from checkAuth import user_is_authenticated
 import sys
+import logging
 
+logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 
 firebase = pyrebase.initialize_app(config)
@@ -11,18 +13,28 @@ db = firebase.database()
 
 arguments=json.loads(sys.argv[1])
 
-def create_group(groupname,user, usertoken):
-    # TODO check user authentication
+def create_group(groupname, user, timeToLive, usertoken):
     if user_is_authenticated(usertoken):
+        logging.debug("Creating group data")
         data = {
             "owner": user,
             "name": groupname
         }
+        logging.debug("Pushing group to database")
         result = db.child("groups").push(data)
-        groupID = result["name"]
-        print("Created group with id "+str(groupID))
+        returnData = {
+            "groupID":result["name"],
+            "QRtoken":"notImplemented"
+        }
+        logging.debug("Returning group data")
+
+
+        print(json.dumps(returnData),end='')
         #TODO return the qr token
     else:
         print("User authentication failed")
+
+def get_expiry(timeToLive):
+
 
 create_group(arguments["groupname"],arguments["username"],arguments["userToken"])
