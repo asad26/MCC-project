@@ -27,7 +27,7 @@ user=auth.sign_in_with_email_and_password(email, password)
 
 
 logging.debug("Initializing group data")
-data = {"groupname":"myGroup", "username":"Paavo","userToken": user['idToken']}
+data = {"groupname":"myGroup", "username":"Paavo", "timeToLive":100,"userToken": user['idToken']}
 jsonData = json.dumps(data)
 
 

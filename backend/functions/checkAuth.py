@@ -16,7 +16,7 @@ def user_is_authenticated(id_token):
     try:
         auth.get_user(uid)
         logging.debug("User authentication succeeded")
-        return True
+        return True, uid
     except (firebase_admin.auth.AuthError, ValueError) as e:
         logging.debug("User authentication failed")
-        return False
+        return False, None

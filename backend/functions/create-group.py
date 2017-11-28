@@ -4,6 +4,8 @@ from config.testconfig import config
 from checkAuth import user_is_authenticated
 import sys
 import logging
+from time import time
+import os,binascii
 
 logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
@@ -14,17 +16,34 @@ db = firebase.database()
 arguments=json.loads(sys.argv[1])
 
 def create_group(groupname, user, timeToLive, usertoken):
-    if user_is_authenticated(usertoken):
+    authenticated, uid = user_is_authenticated(usertoken)
+    if authenticated:
         logging.debug("Creating group data")
+        userData = {
+            "name":user,
+            "QR":"notready"
+        }
+        members = {
+            uid:userData
+        }
         data = {
             "owner": user,
-            "name": groupname
+            "ownerID": uid,
+            "name": groupname,
+            "expiry":get_expiry(timeToLive),
+            "members":members
         }
         logging.debug("Pushing group to database")
         result = db.child("groups").push(data)
+
+        groupID = result["name"]
+
+        QR = createQR(groupID,uid)
+        db.child("groups").child(groupID).child("members").child(uid).update({"QR":QR})
+
         returnData = {
-            "groupID":result["name"],
-            "QRtoken":"notImplemented"
+            "groupID":groupID,
+            "QRtoken":QR
         }
         logging.debug("Returning group data")
         print(json.dumps(returnData),end='')
@@ -32,7 +51,13 @@ def create_group(groupname, user, timeToLive, usertoken):
     else:
         print("User authentication failed")
 
+#defines the expiry time in Unix Epoch Time
 def get_expiry(timeToLive):
-    return 1
+    return time()+60*timeToLive
 
-create_group(arguments["groupname"],arguments["username"],100,arguments["userToken"])
+def createQR(groupID, usrID):
+    random = random = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
+    return groupID+'/'+usrID+'/'+random
+
+
+create_group(arguments["groupname"],arguments["username"],arguments["timeToLive"],arguments["userToken"])
