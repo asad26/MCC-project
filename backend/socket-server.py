@@ -9,7 +9,7 @@ def process(path):
     postdata = request.body.read()
     logging.debug("Server received request: "+path)
     try:
-        return subprocess.check_output(['python3',path+'.py', postdata],shell=False)
+        return subprocess.check_output(['python3','functions/'+path+'.py', postdata],shell=False)
     except subprocess.CalledProcessError as e:
         logging.debug("Server could not run function: "+path)
 

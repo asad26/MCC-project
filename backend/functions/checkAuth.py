@@ -1,4 +1,4 @@
-from testconfig import config
+from config.testconfig import config
 import firebase_admin
 from firebase_admin import credentials, auth
 import logging

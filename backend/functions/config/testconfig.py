@@ -3,5 +3,5 @@ config = {
   "authDomain": "test-project-51580.firebaseapp.com",
   "databaseURL": "https://test-project-51580.firebaseio.com",
   "storageBucket": "test-project-51580.appspot.com",
-  "serviceAccount": "test-key.json"
+  "serviceAccount": "functions/config/test-key.json"
 }
