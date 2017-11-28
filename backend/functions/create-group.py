@@ -1,6 +1,6 @@
 import pyrebase
 import json
-from config.testconfig import config
+from config.config import config
 from checkAuth import user_is_authenticated
 import sys
 import logging

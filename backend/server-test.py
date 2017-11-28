@@ -7,16 +7,16 @@ logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(messag
 
 logging.debug("Running group creation test")
 
-email="paavo923@hotmail.com"
-password="salasana"
+email="testuser@gmail.com"
+password="password"
 
 config = {
-    "apiKey": "AIzaSyDr49kPUF-KlIai8uufSfnFWWy3OZvyMBY",
-    "authDomain": "test-project-51580.firebaseapp.com",
-    "databaseURL": "https://test-project-51580.firebaseio.com",
-    "projectId": "test-project-51580",
-    "storageBucket": "test-project-51580.appspot.com",
-    "messagingSenderId": "752406124013"
+    "apiKey": "AIzaSyDkLUFoxI8Hh9luv8V4UKTPmE9N0GBYuQg",
+    "authDomain": "mcc-fall-2017-g18.firebaseapp.com",
+    "databaseURL": "https://mcc-fall-2017-g18.firebaseio.com",
+    "projectId": "mcc-fall-2017-g18",
+    "storageBucket": "mcc-fall-2017-g18.appspot.com",
+    "messagingSenderId": "1028528125996"
   }
 
 logging.debug("Initializing firebase config")
@@ -27,7 +27,7 @@ user=auth.sign_in_with_email_and_password(email, password)
 
 
 logging.debug("Initializing group data")
-data = {"groupname":"myGroup", "username":"Paavo", "timeToLive":100,"userToken": user['idToken']}
+data = {"groupname":"myGroup", "username":"TestUser", "timeToLive":100,"userToken": user['idToken']}
 jsonData = json.dumps(data)
 
 

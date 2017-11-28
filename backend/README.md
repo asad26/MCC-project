@@ -29,10 +29,10 @@ server-test.py
 
 * an example of a HTTP POST request done by client
 
-functions/config/test-key.json
+functions/config/mcc-fall-2017-g18-firebase-adminsdk-o1mru-8ac45de714.json
 
 * includes firebase projects service account data
 
-functions/config/testconfig.py
+functions/config/config.py
 
 * includes apiKey, authDomain, databaseURL, storageBucket and ServiceAccount -file data
