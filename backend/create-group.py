@@ -27,14 +27,12 @@ def create_group(groupname, user, timeToLive, usertoken):
             "QRtoken":"notImplemented"
         }
         logging.debug("Returning group data")
-
-
         print(json.dumps(returnData),end='')
         #TODO return the qr token
     else:
         print("User authentication failed")
 
 def get_expiry(timeToLive):
+    return 1
 
-
-create_group(arguments["groupname"],arguments["username"],arguments["userToken"])
+create_group(arguments["groupname"],arguments["username"],100,arguments["userToken"])

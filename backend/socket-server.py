@@ -13,4 +13,4 @@ def process(path):
     except subprocess.CalledProcessError as e:
         logging.debug("Server could not run function: "+path)
 
-run(host='localhost', port=8080, debug=True)
+run(host='localhost', port=8080, debug=True, server='paste')
