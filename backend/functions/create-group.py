@@ -38,8 +38,11 @@ def create_group(groupname, user, timeToLive, usertoken):
 
         groupID = result["name"]
 
+        # Updating the proper QR code to the group
         QR = createQR(groupID,uid)
         db.child("groups").child(groupID).child("members").child(uid).update({"QR":QR})
+
+        db.child("users").child(uid).update({"groupID":groupID})
 
         returnData = {
             "groupID":groupID,
@@ -47,7 +50,6 @@ def create_group(groupname, user, timeToLive, usertoken):
         }
         logging.debug("Returning group data")
         print(json.dumps(returnData),end='')
-        #TODO return the qr token
     else:
         print("User authentication failed")
 
@@ -55,6 +57,7 @@ def create_group(groupname, user, timeToLive, usertoken):
 def get_expiry(timeToLive):
     return time()+60*timeToLive
 
+#Creates a QR token with groupID, userID and random string
 def createQR(groupID, usrID):
     random = random = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
     return groupID+'/'+usrID+'/'+random
