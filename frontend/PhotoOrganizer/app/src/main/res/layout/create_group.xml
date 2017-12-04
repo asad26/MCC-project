@@ -25,8 +25,8 @@
         android:layout_marginEnd="35dp"
         android:layout_marginStart="47dp"
         android:text="@string/group_name"
-        android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"
+        android:textStyle="bold"
         app:layout_constraintBaseline_toBaselineOf="@+id/editGroupName"
         app:layout_constraintEnd_toStartOf="@+id/editGroupName"
         app:layout_constraintStart_toStartOf="parent" />
@@ -51,8 +51,8 @@
         android:layout_marginEnd="18dp"
         android:layout_marginStart="47dp"
         android:text="@string/group_duration"
-        android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"
+        android:textStyle="bold"
         app:layout_constraintBaseline_toBaselineOf="@+id/editDuration"
         app:layout_constraintEnd_toStartOf="@+id/editDuration"
         app:layout_constraintStart_toStartOf="parent" />
@@ -84,9 +84,24 @@
         android:id="@+id/buttonCreateGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="43dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
         android:text="@string/create"
-        app:layout_constraintEnd_toEndOf="@+id/editDuration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editDuration" />
+
+    <ProgressBar
+        android:id="@+id/createProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCreateGroup" />
 </android.support.constraint.ConstraintLayout>

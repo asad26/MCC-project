@@ -23,4 +23,41 @@
     <string name="signOut">SIGN OUT</string>
     <string name="TextView">TextView</string>
     <string name="low_storage_error">Detector dependencies cannot be downloaded due to low device storage</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="leave_button">LEAVE</string>
+    <string name="view_group_information">Group Information</string>
+    <string name="view_group_name">Name</string>
+    <string name="view_group_expiration">Expiration</string>
+    <string name="view_group_members">Members</string>
+    <string name="add_member">ADD MEMBER</string>
+    <string name="add_user_text">Scan to join!</string>
+
+    <!-- Strings related to Settings -->
+    <string name="pref_sync_settings_title">Resolution for uploading and downloading pictures</string>
+    <string name="pref_mdata_sync">While on mobile data</string>
+    <string name="pref_wifi_sync">While on wifi</string>
+
+
+    <string-array name="pref_mdata_sync_titles">
+        <item>Low (640 x 480 pixels)</item>
+        <item>High (1280 x 960 pixels)</item>
+        <item>Full</item>
+    </string-array>
+    <string-array name="pref_mdata_sync_values">
+        <item>Low</item>
+        <item>High</item>
+        <item>Full</item>
+    </string-array>
+
+    <string-array name="pref_wifi_sync_titles">
+        <item>Low (640 x 480 pixels)</item>
+        <item>High (1280 x 960 pixels)</item>
+        <item>Full</item>
+    </string-array>
+    <string-array name="pref_wifi_sync_values">
+        <item>Low</item>
+        <item>High</item>
+        <item>Full</item>
+    </string-array>
+
 </resources>

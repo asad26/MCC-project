@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_sync_settings_title"
+        android:key="pref_key_sync_setting">
+        <ListPreference
+            android:defaultValue="Low"
+            android:entries="@array/pref_mdata_sync_titles"
+            android:entryValues="@array/pref_mdata_sync_values"
+            android:key="pref_key_mdata_sync"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_mdata_sync" />
+
+        <ListPreference
+            android:defaultValue="Low"
+            android:entries="@array/pref_wifi_sync_titles"
+            android:entryValues="@array/pref_wifi_sync_values"
+            android:key="pref_key_wifi_sync"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_wifi_sync" />
+    </PreferenceCategory>
+</PreferenceScreen>

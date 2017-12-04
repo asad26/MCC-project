@@ -6,10 +6,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class GroupManagement extends AppCompatActivity {
 
     private Button createGroupButton;
     private Button joinGroupButton;
+
+    private DatabaseReference mFirebaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -34,7 +34,15 @@
         <activity android:name=".GroupManagement" />
         <activity android:name=".ViewGroup" />
         <activity android:name=".JoinGroup" />
-        <activity android:name=".AddUserActivity"></activity>
+        <activity android:name=".AddUserActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".GridActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.aalto.asad.photoorganizer.GridActivity" />
+        </activity>
     </application>
 
 </manifest>

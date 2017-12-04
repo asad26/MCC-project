@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -48,6 +50,7 @@ public class GridActivity extends AppCompatActivity {
     private Button groupManagement;
     private Button signOut;
     private Button buttonCamera;
+    private Button buttonSettings;
 
     private ImageView testImage;
     private TextView testDisplay;
@@ -64,6 +67,7 @@ public class GridActivity extends AppCompatActivity {
         groupManagement = (Button) findViewById(R.id.buttonGroup);
         signOut = (Button) findViewById(R.id.signOut);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
+        buttonSettings = (Button) findViewById(R.id.buttonSettings);
 
         // Test
         testImage = (ImageView) findViewById(R.id.imageViewTest);
@@ -77,8 +81,8 @@ public class GridActivity extends AppCompatActivity {
         groupManagement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), GroupManagement.class);
-                startActivity(intent);
+                Intent groupManagementIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                startActivity(groupManagementIntent);
             }
         });
 
@@ -89,6 +93,14 @@ public class GridActivity extends AppCompatActivity {
                 //if (cameraIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(cameraIntent, CAPTURE_IMAGE);
                 //}
+            }
+        });
+
+        buttonSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(settingIntent);
             }
         });
 
@@ -201,6 +213,14 @@ public class GridActivity extends AppCompatActivity {
         };
         mDatabaseReference.addValueEventListener(postListener);
         copyPostListener = postListener;
+
+        //Get a reference to shared preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //Find a preference value by key
+        String mdataSync = sharedPref.getString("pref_key_mdata_sync", "");
+        String wifiSync = sharedPref.getString("pref_key_wifi_sync", "");
+        ((TextView)findViewById(R.id.textView9)).setText("Mobile data sync set to: "+mdataSync);
+        ((TextView)findViewById(R.id.textView8)).setText("Wifi sync set to: "+wifiSync);
     }
 
     @Override
