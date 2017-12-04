@@ -15,6 +15,7 @@ def process(path):
         postdata = request.body.read()
         logging.debug("Server received request: "+path)
         try:
+            logging.debug("Running "+function)
             return subprocess.check_output(['python3',function, postdata],shell=False)
         except subprocess.CalledProcessError as e:
             logging.debug("Server could not run function: "+path)

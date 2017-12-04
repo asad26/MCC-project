@@ -3,19 +3,23 @@ from config.config import config
 import logging
 from time import time
 
-logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-logging.debug("Looking for expired groups")
-print("Looking for expired groups")
-def deleteExpired():
+def main():
+    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    firebase = pyrebase.initialize_app(config)
+    db = firebase.database()
+    logging.debug("Looking for expired groups")
+    print("Looking for expired groups")
+    deleteExpired(db)
+
+def deleteExpired(db):
     groups = db.child("groups").get()
     for group in groups.each():
-        expiry = group.val()['expiry']
-        if expiry<time():
-            groupID = str(group.key())
-            deleteGroup(db, groupID)
+        if 'expiry' in group.val():
+            expiry = group.val()['expiry']
+            if expiry<time():
+                groupID = str(group.key())
+                deleteGroup(db, groupID)
 
 def deleteGroup(database, groupID):
     #Remove group id from every member
@@ -28,4 +32,5 @@ def deleteGroup(database, groupID):
     database.child("groups").child(groupID).remove()
     print("Removed group "+groupID)
 
-deleteExpired()
+if __name__ == "__main__":
+    main()
