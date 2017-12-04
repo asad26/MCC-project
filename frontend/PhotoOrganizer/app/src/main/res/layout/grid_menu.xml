@@ -3,41 +3,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:layout_editor_absoluteY="81dp">
+
 
     <Button
         android:id="@+id/buttonGallery"
-        android:layout_width="80dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="363dp"
-        android:layout_marginEnd="112dp"
-        android:layout_marginStart="53dp"
-        android:layout_marginTop="19dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginStart="63dp"
         android:background="@drawable/gallery"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonCamera"
         app:layout_constraintEnd_toStartOf="@+id/buttonCamera"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/buttonCamera" />
 
     <Button
         android:id="@+id/buttonCamera"
-        android:layout_width="80dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="183dp"
-        android:layout_marginEnd="59dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginEnd="66dp"
         android:layout_marginTop="45dp"
         android:background="@drawable/camera"
-        app:layout_constraintBottom_toTopOf="@+id/imageViewTest"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonGallery"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/buttonGroup"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="112dp"
-        android:layout_marginStart="53dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginStart="63dp"
         android:background="@drawable/group_management"
         app:layout_constraintBottom_toBottomOf="@+id/buttonSettings"
         app:layout_constraintEnd_toStartOf="@+id/buttonSettings"
@@ -46,82 +44,75 @@
 
     <Button
         android:id="@+id/buttonSettings"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginEnd="59dp"
-        android:layout_marginTop="48dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="153dp"
+        android:layout_marginEnd="66dp"
+        android:layout_marginTop="154dp"
         android:background="@drawable/settings"
+        app:layout_constraintBottom_toBottomOf="@+id/logOut"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonGroup"
-        app:layout_constraintTop_toBottomOf="@+id/textCamera" />
+        app:layout_constraintTop_toTopOf="@+id/buttonCamera" />
 
     <TextView
         android:id="@+id/textGallery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
+        android:layout_marginEnd="22dp"
         android:layout_marginTop="9dp"
         android:text="@string/gallery"
-        app:layout_constraintStart_toStartOf="@+id/buttonGallery"
+        app:layout_constraintEnd_toEndOf="@+id/buttonGallery"
         app:layout_constraintTop_toBottomOf="@+id/buttonGallery" />
 
     <TextView
         android:id="@+id/textCamera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
+        android:layout_marginEnd="20dp"
         android:layout_marginTop="9dp"
         android:text="@string/camera"
-        app:layout_constraintStart_toStartOf="@+id/buttonCamera"
+        app:layout_constraintEnd_toEndOf="@+id/buttonCamera"
         app:layout_constraintTop_toBottomOf="@+id/buttonCamera" />
 
     <TextView
         android:id="@+id/textGroupMag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="121dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
         android:text="@string/group"
-        app:layout_constraintEnd_toEndOf="@+id/buttonGroup"
+        app:layout_constraintEnd_toStartOf="@+id/textSettings"
+        app:layout_constraintStart_toStartOf="@+id/buttonGroup"
         app:layout_constraintTop_toBottomOf="@+id/buttonGroup" />
 
     <TextView
         android:id="@+id/textSettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="73dp"
-        android:layout_marginTop="9dp"
+        android:layout_marginBottom="152dp"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="153dp"
         android:text="@string/settings"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageViewTest"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSettings" />
+        app:layout_constraintBottom_toBottomOf="@+id/textLogOut"
+        app:layout_constraintStart_toStartOf="@+id/buttonSettings"
+        app:layout_constraintTop_toTopOf="@+id/textCamera" />
 
     <Button
-        android:id="@+id/signOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="49dp"
-        android:text="@string/signOut"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/imageViewTest"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="108dp"
-        android:layout_marginEnd="13dp"
-        android:layout_marginStart="137dp"
-        android:contentDescription="@null"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textSettings"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCamera"
-        app:srcCompat="@mipmap/ic_launcher" />
+        android:id="@+id/logOut"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="26dp"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/logout"
+        app:layout_constraintBottom_toBottomOf="@+id/textLogOut"
+        app:layout_constraintEnd_toEndOf="@+id/buttonSettings"
+        app:layout_constraintStart_toStartOf="@+id/buttonSettings"
+        app:layout_constraintTop_toBottomOf="@+id/textSettings" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textLogOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"

@@ -80,6 +80,8 @@
         android:layout_width="320dp"
         android:layout_height="50dp"
         android:layout_marginBottom="76dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginStart="7dp"
         android:text="@string/register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,9 +89,9 @@
 
     <TextView
         android:id="@+id/textAlreadyRegistered"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="39dp"
+        android:layout_marginStart="35dp"
         android:text="@string/already_registered"
         app:layout_constraintBaseline_toBaselineOf="@+id/signInButton"
         app:layout_constraintEnd_toStartOf="@+id/signInButton"

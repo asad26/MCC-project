@@ -20,7 +20,6 @@
     <string name="sign_in_new">SIGN IN</string>
     <string name="for_sign_up">Not a member?</string>
     <string name="register_new">Register</string>
-    <string name="signOut">SIGN OUT</string>
     <string name="TextView">TextView</string>
     <string name="low_storage_error">Detector dependencies cannot be downloaded due to low device storage</string>
     <string name="title_activity_settings">Settings</string>
@@ -59,5 +58,7 @@
         <item>High</item>
         <item>Full</item>
     </string-array>
-
+    <string name="privatefol">Private</string>
+    <string name="zero0">0</string>
+    <string name="log_out">Log out</string>
 </resources>
