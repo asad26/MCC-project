@@ -22,4 +22,4 @@ def process(path):
     else:
         return path+" not available"
 
-run(host='localhost', port=8080, debug=True, server='paste')
+run(host='0.0.0.0', port=8080, debug=True, server='paste')

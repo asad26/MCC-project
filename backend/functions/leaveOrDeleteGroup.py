@@ -6,18 +6,28 @@ import sys
 import logging
 from deleteExpired import deleteGroup
 
-logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
-logging.debug("Running leave or delete group")
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
+def main():
+    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    logging.debug("Running leave or delete group")
+    firebase = pyrebase.initialize_app(config)
+    db = firebase.database()
+    arguments=json.loads(sys.argv[1])
+    usertoken = arguments["userToken"]
+    authenticated, userID = user_is_authenticated(usertoken)
+    if authenticated:
+        logging.debug("Getting group ID")
+        groupID = db.child("users").child(userID).child("groupID").get().val()
+        logging.debug("Found group: "+str(groupID))
+        if isOwner(db, userID, groupID):
+            deleteGroup(db, groupID)
+        else:
+            leaveGroup(db,userID, groupID)
 
-arguments=json.loads(sys.argv[1])
-
-def isOwner(userID, groupID):
+def isOwner(db, userID, groupID):
     owner = db.child("groups").child(groupID).child("ownerID").get().val()
     return owner==userID
 
-def leaveGroup(userID, groupID):
+def leaveGroup(db, userID, groupID):
     logging.debug("Removing group "+groupID+" from "+userID+" table")
     #Remove from user table
     db.child("users").child(userID).child("groupID").remove()
@@ -26,13 +36,5 @@ def leaveGroup(userID, groupID):
     db.child("groups").child(groupID).child("members").child("userID").remove()
     print("Removed user "+userID+" from group "+groupID)
 
-usertoken = arguments["userToken"]
-authenticated, userID = user_is_authenticated(usertoken)
-if authenticated:
-    logging.debug("Getting group ID")
-    groupID = db.child("users").child(userID).child("groupID").get().val()
-    logging.debug("Found group: "+str(groupID))
-    if isOwner(userID, groupID):
-        deleteGroup(db, groupID)
-    else:
-        leaveGroup(userID, groupID)
+if __name__ == "__main__":
+    main()
