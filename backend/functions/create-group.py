@@ -7,15 +7,14 @@ import logging
 from time import time
 import os,binascii
 
-logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+def main():
+    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    firebase = pyrebase.initialize_app(config)
+    db = firebase.database()
+    arguments=json.loads(sys.argv[1])
+    create_group(db,arguments["groupname"],arguments["username"],arguments["timeToLive"],arguments["userToken"])
 
-
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-
-arguments=json.loads(sys.argv[1])
-
-def create_group(groupname, user, timeToLive, usertoken):
+def create_group(db,groupname, user, timeToLive, usertoken):
     authenticated, uid = user_is_authenticated(usertoken)
     if authenticated:
         logging.debug("Creating group data")
@@ -62,5 +61,5 @@ def createQR(groupID, usrID):
     random = random = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
     return groupID+'/'+usrID+'/'+random
 
-
-create_group(arguments["groupname"],arguments["username"],arguments["timeToLive"],arguments["userToken"])
+if __name__ == "__main__":
+    main()
