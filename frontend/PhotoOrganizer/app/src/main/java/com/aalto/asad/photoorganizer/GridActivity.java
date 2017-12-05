@@ -59,8 +59,13 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * Created by Asad on 11/8/2017.
@@ -89,6 +94,8 @@ public class GridActivity extends AppCompatActivity {
     private File imageFile = null;
     private String userToken;
     public static List<PhotoAlbum> albumList;
+    private HashMap<String, String> params;
+    ApiForBackend api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +117,8 @@ public class GridActivity extends AppCompatActivity {
 
         albumList = new ArrayList<PhotoAlbum>();
 
-
-            sendData("http://192.168.43.167:8080/", "Hello World!");
+        params = new HashMap<String, String>();
+        api = new ApiForBackend();
 
         // Retrieve user ID token
         mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
@@ -129,6 +136,14 @@ public class GridActivity extends AppCompatActivity {
         imagesGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //<-------------------------------------- Example for calling ApiForBackend
+                params.put("usergroup", "Picnic");
+                params.put("username", "Asad");
+                String res = api.executePost("ip", params);
+                Log.i(TAG, "response " + res);
+                //<--------------------------------------
+
                 int c = countImagesFromDirectory();
                 PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(c), R.drawable.group_management);
                 albumList.add(a);
