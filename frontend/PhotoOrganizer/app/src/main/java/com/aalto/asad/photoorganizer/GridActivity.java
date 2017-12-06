@@ -6,6 +6,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,11 +14,14 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -75,6 +79,7 @@ public class GridActivity extends AppCompatActivity {
 
     private static final String TAG = "MCC";
     private static final int CAPTURE_IMAGE = 1;
+    private static final int ANDROID_CAMERA_REQUEST_CODE = 100;
     //private static boolean isBarcode = true;
 
     private Button groupManagement;
@@ -184,21 +189,15 @@ public class GridActivity extends AppCompatActivity {
                 if (groupID == "") {
                     Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
                 } else {
-                    Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                        try {
-                            imageFile = createImageFile();
-                            Log.i(TAG, "createImageFile:success");
-                        } catch (IOException e) {
-                            Log.i(TAG, "createImageFile:failure " + e.getMessage());
+                    if (ContextCompat.checkSelfPermission(GridActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(GridActivity.this, android.Manifest.permission.CAMERA)) {
+                            Toast.makeText(GridActivity.this, "Your Permission is needed to get access the camera", Toast.LENGTH_LONG).show();
                         }
-
-                        if (imageFile != null) {
-                            Log.i(TAG, "button camera Image file ");
-                            Uri imageURI = FileProvider.getUriForFile(getApplicationContext(), "com.android.fileprovider", imageFile);
-                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
-                            startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
-                        }
+                        ActivityCompat.requestPermissions(GridActivity.this,
+                                new String[]{android.Manifest.permission.CAMERA},
+                                ANDROID_CAMERA_REQUEST_CODE);
+                    } else {
+                        takePictureIntent();
                     }
                 }
             }
@@ -251,6 +250,39 @@ public class GridActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         mUserGroupsReference.removeEventListener(mUserGroupsListener);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == ANDROID_CAMERA_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show();
+                Log.i(TAG, "onRequestPermissionsResult:Camera permission granted.");
+                takePictureIntent();
+            } else {
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_LONG).show();
+                Log.i(TAG, "onRequestPermissionsResult:Camera permission denied.");
+            }
+        }
+    }
+
+    private void takePictureIntent() {
+        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            try {
+                imageFile = createImageFile();
+                Log.i(TAG, "createImageFile:success");
+            } catch (IOException e) {
+                Log.i(TAG, "createImageFile:failure " + e.getMessage());
+            }
+
+            if (imageFile != null) {
+                Log.i(TAG, "button camera Image file ");
+                Uri imageURI = FileProvider.getUriForFile(getApplicationContext(), "com.android.fileprovider", imageFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+                startActivityForResult(cameraIntent, CAPTURE_IMAGE);
+            }
+        }
     }
 
     @Override
