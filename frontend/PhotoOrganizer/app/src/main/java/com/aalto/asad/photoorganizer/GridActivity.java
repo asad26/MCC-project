@@ -88,14 +88,25 @@ public class GridActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private DatabaseReference mDatabaseReference;
+    private DatabaseReference mUserGroupsReference;
+    private ValueEventListener mUserGroupsListener;
     private ValueEventListener copyPostListener;
+    private String userID;
+    private String groupID;
 
     private File imageFile = null;
     private String userToken;
     public static List<PhotoAlbum> albumList;
     private HashMap<String, String> params;
     ApiForBackend api;
+
+    /** This is hot to read the sync preferences
+    //Get a reference to shared preferences
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    //Find a preference value by key
+    String mdataSync = sharedPref.getString("pref_key_mdata_sync", "");
+    String wifiSync = sharedPref.getString("pref_key_wifi_sync", "");
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +123,8 @@ public class GridActivity extends AppCompatActivity {
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(mFirebaseUser.getUid());
+        userID = mFirebaseUser.getUid();
+        mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userID);
         storageReference = FirebaseStorage.getInstance().getReference();
 
         albumList = new ArrayList<PhotoAlbum>();
@@ -155,28 +167,38 @@ public class GridActivity extends AppCompatActivity {
         groupManagement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent groupManagementIntent = new Intent(getApplicationContext(), ViewGroup.class);
-                startActivity(groupManagementIntent);
+                if (groupID == "") {
+                    Intent groupManagementIntent = new Intent(getApplicationContext(), GroupManagement.class);
+                    startActivity(groupManagementIntent);
+                } else {
+                    Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                    viewGroupIntent.putExtra("Group", groupID);
+                    startActivity(viewGroupIntent);
+                }
             }
         });
 
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    try {
-                        imageFile = createImageFile();
-                        Log.i(TAG, "createImageFile:success");
-                    } catch (IOException e) {
-                        Log.i(TAG, "createImageFile:failure " + e.getMessage());
-                    }
+                if (groupID == "") {
+                    Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        try {
+                            imageFile = createImageFile();
+                            Log.i(TAG, "createImageFile:success");
+                        } catch (IOException e) {
+                            Log.i(TAG, "createImageFile:failure " + e.getMessage());
+                        }
 
-                    if (imageFile != null) {
-                        Log.i(TAG, "button camera Image file ");
-                        Uri imageURI = FileProvider.getUriForFile(getApplicationContext(), "com.android.fileprovider", imageFile);
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
-                        startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
+                        if (imageFile != null) {
+                            Log.i(TAG, "button camera Image file ");
+                            Uri imageURI = FileProvider.getUriForFile(getApplicationContext(), "com.android.fileprovider", imageFile);
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+                            startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
+                        }
                     }
                 }
             }
@@ -199,6 +221,36 @@ public class GridActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ValueEventListener userGroupsListener = new ValueEventListener(){
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot){
+                if((!dataSnapshot.hasChild(userID)) || dataSnapshot.child(userID) == null) {
+                    groupID = "";
+                } else {
+                    UserGroup userGroup = dataSnapshot.child(userID).getValue(UserGroup.class);
+                    groupID = userGroup.getUserGroup();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "userGroupListener:onCancelled");
+                Toast.makeText(GridActivity.this, "Unable to read user's group from database.", Toast.LENGTH_LONG).show();
+            }
+        };
+        mUserGroupsListener = userGroupsListener;
+        mUserGroupsReference.addListenerForSingleValueEvent(userGroupsListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mUserGroupsReference.removeEventListener(mUserGroupsListener);
     }
 
     @Override
@@ -406,18 +458,6 @@ public class GridActivity extends AppCompatActivity {
 //        Log.d(TAG, "send successed: " + result);
 //        //System.out.println(response.getStatusLine());
 //    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        //Get a reference to shared preferences
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //Find a preference value by key
-        String mdataSync = sharedPref.getString("pref_key_mdata_sync", "");
-        String wifiSync = sharedPref.getString("pref_key_wifi_sync", "");
-        ((TextView)findViewById(R.id.textView9)).setText("Mobile data sync set to: "+mdataSync);
-        ((TextView)findViewById(R.id.textView8)).setText("Wifi sync set to: "+wifiSync);
-    }
 
     public int countImagesFromDirectory() {
         ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
