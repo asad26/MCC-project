@@ -26,7 +26,7 @@ import java.util.HashMap;
 public class CreateGroup extends AppCompatActivity {
 
     private static final String TAG = "MCC";
-    private static final String createGroupUrl = "/create-group";
+    private static final String createGroupUrl = "/createGroup";
 
     private Button createButton;
     private TextView groupNameText;
