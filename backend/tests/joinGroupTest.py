@@ -8,7 +8,7 @@ logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(messag
 
 logging.debug("Running group creation test")
 
-email="testuser@gmail.com"
+email="testman2@gmail.com"
 password="password"
 
 config = {
@@ -28,7 +28,11 @@ user=auth.sign_in_with_email_and_password(email, password)
 
 
 logging.debug("Initializing group data")
-data = {"groupname":"myGroup", "username":"TestUser", "timeToLive":10,"userToken": user['idToken']}
+
+#Enter some qrtoken here
+qrtoken = "-L-kxdI8Eb-WWit38-UQ/yKRG8T3mvtenMW1yQSm92BmAuPS2/642d1f6ce2c28d3d378f56691889b2"
+
+data = {"QRToken":qrtoken,"userToken": user['idToken']}
 postData = urllib.parse.urlencode(data)
 
 
@@ -36,7 +40,6 @@ headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/
 
 logging.debug("Sending POST request")
 logging.debug("Receiving response")
-#response = requests.post('https://mcc-fall-2017-g18.appspot.com/createGroup', data=postData)
-response = requests.post('http://localhost:8080/createGroup', data=postData)
+response = requests.post('http://localhost:8080/joinGroup', data=postData)
 print(response.text)
 logging.debug("Group data received: "+str(data))

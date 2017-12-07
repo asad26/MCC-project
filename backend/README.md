@@ -16,7 +16,7 @@ functions/checkAuth.py
 
 * includes a function to check if user is authenticated
 
-functions/create-group.py
+functions/createGroup.py
 
 * includes a function to create group with given arguments
 

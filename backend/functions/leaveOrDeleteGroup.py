@@ -5,6 +5,7 @@ from checkAuth import user_is_authenticated
 import sys
 import logging
 from deleteExpired import deleteGroup
+from joinGroup import isInGroup
 
 def main(kwargs_dict):
     logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -14,6 +15,8 @@ def main(kwargs_dict):
     usertoken = kwargs_dict["userToken"]
     authenticated, userID = user_is_authenticated(usertoken)
     if authenticated:
+        if not isInGroup(db, userID):
+            return "Not in any group"
         logging.debug("Getting group ID")
         groupID = db.child("users").child(userID).child("groupID").get().val()
         logging.debug("Found group: "+str(groupID))
@@ -32,7 +35,7 @@ def leaveGroup(db, userID, groupID):
     db.child("users").child(userID).child("groupID").remove()
     logging.debug("Removing user "+userID+" from "+groupID+" table")
     #Remove from group table
-    db.child("groups").child(groupID).child("members").child("userID").remove()
+    db.child("groups").child(groupID).child("members").child(userID).remove()
     return "Removed user "+userID+" from group "+groupID
 
 if __name__ == "__main__":
