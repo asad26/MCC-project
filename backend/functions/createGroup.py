@@ -6,7 +6,7 @@ import sys
 import logging
 from time import time
 import os,binascii
-#from joinGroup import isInGroup
+import joinGroup
 
 def main(kwargs_dict):
     logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -16,9 +16,9 @@ def main(kwargs_dict):
 
 def create_group(db, groupname, username, timeToLive, userToken):
     authenticated, uid = user_is_authenticated(userToken)
-    #if isInGroup(db, uid):
-    #    return "Can't create group, already in group"
     if authenticated:
+        if joinGroup.isInGroup(db, uid):
+            return "Can't create group, already in group"
         logging.debug("Creating group data")
         userData = {
             "name":username,
