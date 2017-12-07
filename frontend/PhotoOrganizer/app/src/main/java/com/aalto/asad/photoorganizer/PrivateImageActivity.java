@@ -29,53 +29,64 @@ public class PrivateImageActivity extends AppCompatActivity {
 
     private GridView privateGridView;
     //private ImageAdapter adapter;
-    private List<String> imageList;
+    private ArrayList<String> imageList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "PrivateImageActivity:onCreate");
         setContentView(R.layout.private_gallery_view);
         privateGridView = (GridView) findViewById(R.id.private_grid_view);
         imageList = new ArrayList<String>();
 
-        LoadImages loadImages = new LoadImages();
-        loadImages.execute();
         //loadImagesFromDirectory();
+        ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GridActivity.imagesPath);
+        privateGridView.setAdapter(adapter);
     }
 
-    class LoadImages extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            imageList.clear();
-        }
-
-        @Override
-        protected Void doInBackground(Void... aVoid) {
-            loadImagesFromDirectory();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            ImageAdapter adapter = new ImageAdapter(getApplicationContext(), imageList);
-            privateGridView.setAdapter(adapter);
-            Log.d(TAG, "Adapter has been set ");
-        }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "PrivateImageActivity:onStart");
     }
 
-    public void loadImagesFromDirectory() {
-        ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
-        File directory = contextWrapper.getDir("imagePrivate", Context.MODE_PRIVATE);
-
-        File[] listFile = directory.listFiles();
-
-        for (File aListFile : listFile) {
-            imageList.add(aListFile.getAbsolutePath());
-            Log.d(TAG, "Image path in Private Activity: " + aListFile.getAbsolutePath());
-        }
-
-        //adapter.notifyDataSetChanged();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "PrivateImageActivity:onResume");
     }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "PrivateImageActivity:onPause");
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        imageList.clear();
+        Log.d(TAG, "PrivateImageActivity:onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        imageList.clear();
+        Log.d(TAG, "PrivateImageActivity:onDestroy");
+    }
+
+//    public void loadImagesFromDirectory() {
+//        ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
+//        File directory = contextWrapper.getDir("imagePrivate", Context.MODE_PRIVATE);
+//        File[] listFile = directory.listFiles();
+//
+//        for (File aListFile : listFile) {
+//            imageList.add(aListFile.getAbsolutePath());
+//            Log.i(TAG, "Image path in Private Activity: " + aListFile.getAbsolutePath());
+//        }
+//    }
 }

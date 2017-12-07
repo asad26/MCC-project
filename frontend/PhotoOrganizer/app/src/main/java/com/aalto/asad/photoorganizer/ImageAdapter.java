@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -38,25 +40,35 @@ public class ImageAdapter extends BaseAdapter {
         return imagePath.size();
     }
 
-    public Object getItem(int i) {
-        return null;
+    public Object getItem(int position) {
+        return position;
     }
 
-    public long getItemId(int i) {
-        return 0;
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View customView = inflater.inflate(R.layout.private_image_item, parent, false);
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-        ImageView imageView = (ImageView) customView.findViewById(R.id.imageViewPrivate);
+        ViewHolder holder;
+        if (convertView == null) {
+            holder = new ViewHolder();
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            convertView = inflater.inflate(R.layout.private_image_item, parent, false);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.imageViewPrivate);
+            convertView.setTag(holder);
+        }
+        else {
+            holder = (ViewHolder) convertView.getTag();
+        }
 
         Uri imageUri = Uri.fromFile(new File(imagePath.get(position)));
-        imageView.setImageURI(imageUri);
-        //Picasso.with(mContext).load(imagePath.get(position)).into(imageView);
+        Glide.with(mContext).load(imageUri) .into(holder.imageView);
+        return convertView;
+    }
 
-        return customView;
+    static class ViewHolder {
+        ImageView imageView;
     }
 }

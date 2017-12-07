@@ -1,8 +1,12 @@
 package com.aalto.asad.photoorganizer;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -66,6 +70,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -79,7 +84,8 @@ public class GridActivity extends AppCompatActivity {
 
     private static final String TAG = "MCC";
     private static final int CAPTURE_IMAGE = 1;
-    private static final int ANDROID_CAMERA_REQUEST_CODE = 100;
+    //private static final int ANDROID_CAMERA_REQUEST_CODE = 100;
+    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
     //private static boolean isBarcode = true;
 
     private Button groupManagement;
@@ -104,6 +110,8 @@ public class GridActivity extends AppCompatActivity {
     public static List<PhotoAlbum> albumList;
     private HashMap<String, String> params;
     ApiForBackend api;
+
+    public static List<String> imagesPath;
 
     /** This is hot to read the sync preferences
     //Get a reference to shared preferences
@@ -132,6 +140,8 @@ public class GridActivity extends AppCompatActivity {
         mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userID);
         storageReference = FirebaseStorage.getInstance().getReference();
 
+        imagesPath = new ArrayList<String>();
+
         albumList = new ArrayList<PhotoAlbum>();
 
         params = new HashMap<String, String>();
@@ -155,15 +165,18 @@ public class GridActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 //<-------------------------------------- Example for calling ApiForBackend
-                params.put("usergroup", "Picnic");
-                params.put("username", "Asad");
-                String res = api.executePost("ip", params);
-                Log.i(TAG, "response " + res);
+//                params.put("usergroup", "Picnic");
+//                params.put("username", "Asad");
+//                String res = api.executePost("ip", params);
+//                Log.i(TAG, "response " + res);
                 //<--------------------------------------
 
-                int c = countImagesFromDirectory();
-                PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(c), R.drawable.group_management);
+                loadImagesFromDirectory();
+                String thumbnail = imagesPath.get(imagesPath.size() - 1);
+                PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
                 albumList.add(a);
+                PhotoAlbum b = new PhotoAlbum("Picnic", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
+                albumList.add(b);
                 Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
                 startActivity(intent);
             }
@@ -172,7 +185,7 @@ public class GridActivity extends AppCompatActivity {
         groupManagement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (groupID == "") {
+                if (groupID.isEmpty()) {
                     Intent groupManagementIntent = new Intent(getApplicationContext(), GroupManagement.class);
                     startActivity(groupManagementIntent);
                 } else {
@@ -186,20 +199,17 @@ public class GridActivity extends AppCompatActivity {
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (groupID == "") {
-                    Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
-                } else {
-                    if (ContextCompat.checkSelfPermission(GridActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(GridActivity.this, android.Manifest.permission.CAMERA)) {
-                            Toast.makeText(GridActivity.this, "Your Permission is needed to get access the camera", Toast.LENGTH_LONG).show();
+                //if (groupID.isEmpty()) {
+                //    Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
+               // } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if(checkAndRequestPermissions()) {
+                            takePictureIntent();
                         }
-                        ActivityCompat.requestPermissions(GridActivity.this,
-                                new String[]{android.Manifest.permission.CAMERA},
-                                ANDROID_CAMERA_REQUEST_CODE);
                     } else {
                         takePictureIntent();
                     }
-                }
+              //  }
             }
         });
 
@@ -252,16 +262,62 @@ public class GridActivity extends AppCompatActivity {
         mUserGroupsReference.removeEventListener(mUserGroupsListener);
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == ANDROID_CAMERA_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Camera permission granted", Toast.LENGTH_LONG).show();
-                Log.i(TAG, "onRequestPermissionsResult:Camera permission granted.");
-                takePictureIntent();
-            } else {
-                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_LONG).show();
-                Log.i(TAG, "onRequestPermissionsResult:Camera permission denied.");
+    private boolean checkAndRequestPermissions() {
+        int cameraPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
+        int writePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int readPermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.CAMERA);
+        }
+        if (writePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (readPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(GridActivity.this,
+                    listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),
+                    REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.i(TAG, "Permission request callback");
+        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
+
+            Map<String, Integer> perms = new HashMap<>();
+            // Initialize the map with permissions
+            perms.put(android.Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
+            perms.put(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+            perms.put(android.Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+
+            // Fill with actual results from user
+            if (grantResults.length > 0) {
+                for (int i = 0; i < permissions.length; i++) {
+                    perms.put(permissions[i], grantResults[i]);
+                }
+
+                if ((perms.get(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
+                        && (perms.get(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                        && (perms.get(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+
+                    Log.i(TAG, "Camera and Storage Permissions granted");
+                    Toast.makeText(this, "Camera and Storage Permissions granted", Toast.LENGTH_LONG).show();
+                    takePictureIntent();
+                    // process the normal flow
+
+                } else {
+                    Log.i(TAG, "Permissions are not granted. ");
+                    Toast.makeText(this, "Permissions are not granted! Ask again", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
@@ -306,9 +362,6 @@ public class GridActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Uri... uris) {
-            BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext())
-                    .setBarcodeFormats(Barcode.DATA_MATRIX | Barcode.QR_CODE)
-                    .build();
 
             imageUri = uris[0];
             try {
@@ -317,8 +370,9 @@ public class GridActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext()).build();
             Frame frame = new Frame.Builder().setBitmap(imageBitmap).build();
-            SparseArray<Barcode> barcodes = barcodeDetector.detect(frame);
+            SparseArray<Barcode> barcode = barcodeDetector.detect(frame);
 
             if(!barcodeDetector.isOperational()){
                 Log.i(TAG, "Could not set up the detector!");
@@ -329,11 +383,10 @@ public class GridActivity extends AppCompatActivity {
                 }
             }
 
-            int size = barcodes.size();
-            if (size != 0) {
+            if (barcode.size() != 0) {
                 Log.i(TAG, "This image has a barcode");
                 barcodeDetector.release();
-                barcodes.clear();
+                barcode.clear();
                 return true;
             }
             else {
@@ -347,8 +400,7 @@ public class GridActivity extends AppCompatActivity {
             super.onPostExecute(isBarcode);
             if (isBarcode) {
                 saveImageToStorage(imageBitmap);
-                Toast.makeText(GridActivity.this, "This is barcode ",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(GridActivity.this, "This is barcode ", Toast.LENGTH_LONG).show();
             } else {
                 //Store in a Firebase storage
                 StorageReference imageReference = storageReference.child("photos").child(imageFile.getName());
@@ -445,56 +497,14 @@ public class GridActivity extends AppCompatActivity {
     }
 
 
-    private static void sendData(String url, String data) {
-        HttpURLConnection httpcon = null;
-        OutputStream os =  null;
-        try {
-            httpcon = (HttpURLConnection) ((new URL(url).openConnection()));
-            httpcon.setDoOutput(true);
-            httpcon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            httpcon.setRequestProperty("Accept", "text/plain");
-            httpcon.setRequestMethod("POST");
-            byte[] outputBytes = data.getBytes("UTF-8");
-            Log.d(TAG, "output bytes " + outputBytes.toString());
-            os = httpcon.getOutputStream();
-            Log.d(TAG, "output bytes " + httpcon.getContent());
-            os.write(outputBytes);
-            Log.d(TAG, "send successed: " + httpcon.getResponseMessage());
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
-            Log.d(TAG, "send error: " + e.getMessage());
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (httpcon != null) {
-                httpcon.disconnect();
-            }
-        }
-    }
-
-//    private static void sendOdfData(String url, String finalMessage) throws IOException {
-//        HttpClient client = HttpClientBuilder.create().build();
-//        HttpPost post = new HttpPost(url);
-//
-//        HttpEntity entity = new ByteArrayEntity(finalMessage.getBytes("UTF-8"));
-//        post.addHeader("Content-Type", "application/x-www-form-urlencoded");
-//        post.setEntity(entity);
-//        HttpResponse response = client.execute(post);
-//        String result = EntityUtils.toString(response.getEntity());
-//        Log.d(TAG, "send successed: " + result);
-//        //System.out.println(response.getStatusLine());
-//    }
-
-    public int countImagesFromDirectory() {
+    public void loadImagesFromDirectory() {
         ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
         File directory = contextWrapper.getDir("imagePrivate", Context.MODE_PRIVATE);
         File[] listFile = directory.listFiles();
-        return listFile.length;
+
+        for (File aListFile : listFile) {
+            imagesPath.add(aListFile.getAbsolutePath());
+            //Log.i(TAG, "Image path in Private Activity: " + aListFile.getAbsolutePath());
+        }
     }
 }

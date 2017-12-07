@@ -15,12 +15,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <meta-data
-            android:name="com.google.android.gms.vision.DEPENDENCIES"
-            android:value="barcode" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -44,7 +38,7 @@
                 android:value="com.aalto.asad.photoorganizer.GridActivity" />
         </activity>
         <activity android:name=".GalleryActivity" android:parentActivityName=".GridActivity" />
-        <activity android:name=".PrivateImageActivity" />
+        <activity android:name=".PrivateImageActivity" android:parentActivityName=".GalleryActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
