@@ -9,18 +9,20 @@ from PIL import Image
 from google.cloud import vision
 from google.cloud.vision import types
 
-logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config["serviceAccount"]
+def main(kwargs_dict):
+    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config["serviceAccount"]
 
-firebase = pyrebase.initialize_app(config)
-fb_db = firebase.database()
-fb_storage = firebase.storage()
+    firebase = pyrebase.initialize_app(config)
+    fb_db = firebase.database()
+    fb_storage = firebase.storage()
 
-arguments=json.loads(sys.argv[1])
+    return process_picture(fb_db, fb_storage, **kwargs_dict)
 
-def process_picture(picture_path, usertoken):
-    authenticated, uid = user_is_authenticated(usertoken)
+
+def process_picture(fb_db, fb_storage, picture_path, userToken):
+    authenticated, uid = user_is_authenticated(userToken)
     if authenticated:
         logging.debug("Processing picture: " + picture_path)
 
@@ -80,8 +82,9 @@ def process_picture(picture_path, usertoken):
         fb_db.child("groups").child(picture_group).child("pictures").push(picture_data)
 
         logging.debug("Successfully processed picture: " + picture_path)
-        print("success")
+        return "success"
     else:
-        print("User authentication failed")
+        return "User authentication failed"
 
-process_picture(arguments["picture_path"], arguments["userToken"])
+if __name__ == "__main__":
+    print(main(json.loads(sys.argv[1])))

@@ -4,13 +4,13 @@ import logging
 from time import time
 
 
-def main():
+def main(kwargs_dict):
     logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
     firebase = pyrebase.initialize_app(config)
     db = firebase.database()
     logging.debug("Looking for expired groups")
     print("Looking for expired groups")
-    deleteExpired(db)
+    return deleteExpired(db)
 
 def deleteExpired(db):
     groups = db.child("groups").get()
@@ -19,7 +19,7 @@ def deleteExpired(db):
             expiry = group.val()['expiry']
             if expiry<time():
                 groupID = str(group.key())
-                deleteGroup(db, groupID)
+                return deleteGroup(db, groupID)
 
 def deleteGroup(database, groupID):
     #Remove group id from every member
@@ -30,7 +30,7 @@ def deleteGroup(database, groupID):
     #TODO delete images related to group
     logging.debug("Deleting group: "+groupID)
     database.child("groups").child(groupID).remove()
-    print("Removed group "+groupID)
+    return "Removed group "+groupID
 
 if __name__ == "__main__":
-    main()
+    main(None)
