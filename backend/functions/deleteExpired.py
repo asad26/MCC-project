@@ -14,6 +14,8 @@ def main(kwargs_dict):
 
 def deleteExpired(db):
     groups = db.child("groups").get()
+    if(str(groups.val())=='None'):
+        return "No groups"
     deletionHistory = ''
     for group in groups.each():
         if 'expiry' in group.val():

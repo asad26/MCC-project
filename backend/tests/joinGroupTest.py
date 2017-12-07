@@ -30,7 +30,7 @@ user=auth.sign_in_with_email_and_password(email, password)
 logging.debug("Initializing group data")
 
 #Enter some qrtoken here
-qrtoken = "-L-kxdI8Eb-WWit38-UQ/yKRG8T3mvtenMW1yQSm92BmAuPS2/642d1f6ce2c28d3d378f56691889b2"
+qrtoken = "-L-lnr6_V-nfKQrwNL36/yKRG8T3mvtenMW1yQSm92BmAuPS2/9bc632c77f02ee9f82319d15a54b33"
 
 data = {"QRToken":qrtoken,"userToken": user['idToken']}
 postData = urllib.parse.urlencode(data)

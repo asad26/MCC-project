@@ -22,9 +22,9 @@ def joinGroup(db, QRToken, userToken):
         if isInGroup(db, userID):
             return "Already in a group"
         else:
-            return addToGroup(db, userID, groupID)
+            return addToGroup(db, userID, groupID, inviterID)
 
-def addToGroup(db, userID, groupID):
+def addToGroup(db, userID, groupID, inviterID):
     QR = createQR(groupID, userID)
     username = db.child("users").child(userID).child("userName").get().val()
     userData = {
@@ -38,7 +38,12 @@ def addToGroup(db, userID, groupID):
     db.child("groups").child(groupID).child("members").child(userID).set(userData)
     logging.debug("Pushing group id to user table")
     db.child("users").child(userID).update({"groupID":groupID})
+    createNewQRForInviter(db, groupID, inviterID)
     return QR
+
+def createNewQRForInviter(db, groupID, inviterID):
+    qrtoken = createQR(groupID, inviterID)
+    db.child("groups").child(groupID).child("members").child(inviterID).update({"QR":qrtoken})
 
 def QRTokenIsLegitimate(db, QRToken):
     logging.debug("Checking provided QRToken is legit")
