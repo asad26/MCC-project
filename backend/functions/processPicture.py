@@ -8,6 +8,7 @@ import os
 from PIL import Image
 from google.cloud import vision
 from google.cloud.vision import types
+import http.client, urllib.parse
 
 
 def main(kwargs_dict):
@@ -80,6 +81,28 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
             picture_data["picture_" + str(p["width"])] = picture_group + "/" + p["filename"]
 
         fb_db.child("groups").child(picture_group).child("pictures").push(picture_data)
+
+        oauth_token = fb_db.credentials.get_access_token().access_token
+        cloud_msg = {
+          "message":{
+            "topic" : picture_group,
+            "notification" : {
+              "body" : "new picture body",
+              "title" : "new picture title",
+              }
+           }
+        }
+        cloud_msg_json = json.dumps(cloud_msg)
+        headers = {"Content-type": "application/json",
+                   "Accept": "text/plain",
+                   "Authorization": "Bearer "+oauth_token}
+        conn = http.client.HTTPSConnection("fcm.googleapis.com")
+        conn.request("POST", "/v1/projects/mcc-fall-2017-g18/messages:send", cloud_msg_json, headers)
+        response = conn.getresponse()
+        print(response.status, response.reason)
+        data = response.read()
+        print(data)
+        conn.close()
 
         logging.debug("Successfully processed picture: " + picture_path)
         return "success"
