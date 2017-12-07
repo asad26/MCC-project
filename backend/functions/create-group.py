@@ -7,29 +7,28 @@ import logging
 from time import time
 import os,binascii
 
-def main():
+def main(kwargs_dict):
     logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
     firebase = pyrebase.initialize_app(config)
     db = firebase.database()
-    arguments=json.loads(sys.argv[1])
-    create_group(db,arguments["groupname"],arguments["username"],arguments["timeToLive"],arguments["userToken"])
+    return create_group(db, **kwargs_dict)
 
-def create_group(db,groupname, user, timeToLive, usertoken):
-    authenticated, uid = user_is_authenticated(usertoken)
+def create_group(db, groupname, username, timeToLive, userToken):
+    authenticated, uid = user_is_authenticated(userToken)
     if authenticated:
         logging.debug("Creating group data")
         userData = {
-            "name":user,
+            "name":username,
             "QR":"notready"
         }
         members = {
             uid:userData
         }
         data = {
-            "owner": user,
+            "owner": username,
             "ownerID": uid,
             "name": groupname,
-            "expiry":get_expiry(timeToLive),
+            "expiry":get_expiry(int(timeToLive)),
             "members":members
         }
         logging.debug("Pushing group to database")
@@ -48,9 +47,9 @@ def create_group(db,groupname, user, timeToLive, usertoken):
             "QRtoken":QR
         }
         logging.debug("Returning group data")
-        print(json.dumps(returnData),end='')
+        return json.dumps(returnData)
     else:
-        print("User authentication failed")
+        return "User authentication failed"
 
 #defines the expiry time in Unix Epoch Time
 def get_expiry(timeToLive):
@@ -62,4 +61,4 @@ def createQR(groupID, usrID):
     return groupID+'/'+usrID+'/'+random
 
 if __name__ == "__main__":
-    main()
+    print(main(json.loads(sys.argv[1])))

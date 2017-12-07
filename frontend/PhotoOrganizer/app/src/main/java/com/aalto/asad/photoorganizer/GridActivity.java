@@ -137,7 +137,7 @@ public class GridActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         userID = mFirebaseUser.getUid();
-        mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userID);
+        mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("userGroups");
         storageReference = FirebaseStorage.getInstance().getReference();
 
         imagesPath = new ArrayList<String>();
@@ -185,7 +185,7 @@ public class GridActivity extends AppCompatActivity {
         groupManagement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (groupID.isEmpty()) {
+                if (groupID.equals("")) {
                     Intent groupManagementIntent = new Intent(getApplicationContext(), GroupManagement.class);
                     startActivity(groupManagementIntent);
                 } else {
@@ -239,10 +239,12 @@ public class GridActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
                 if((!dataSnapshot.hasChild(userID)) || dataSnapshot.child(userID) == null) {
+                    Log.i(TAG, "Checking user group, none found");
                     groupID = "";
                 } else {
                     UserGroup userGroup = dataSnapshot.child(userID).getValue(UserGroup.class);
                     groupID = userGroup.getUserGroup();
+                    Log.i(TAG, "Checking user group, found: " + groupID);
                 }
             }
 

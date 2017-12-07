@@ -83,8 +83,8 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        GridActivity.albumList.clear();
-        GridActivity.imagesPath.clear();
+        //GridActivity.albumList.clear();
+        //GridActivity.imagesPath.clear();
         Log.d(TAG, "GalleryActivity:onStop");
     }
 

@@ -1,6 +1,5 @@
 import http.client, urllib.parse
 import pyrebase
-import json
 import logging
 
 logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -27,12 +26,12 @@ user=auth.sign_in_with_email_and_password(email, password)
 
 logging.debug("Initializing group data")
 data = {"userToken": user['idToken']}
-jsonData = json.dumps(data)
+postData = urllib.parse.urlencode(data)
 headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
 logging.debug("Initializing HTTPConnection")
 conn = http.client.HTTPConnection("localhost", 8080)
 logging.debug("Sending POST request")
-conn.request("POST", "/leaveOrDeleteGroup", jsonData, headers)
+conn.request("POST", "/leaveOrDeleteGroup", postData, headers)
 logging.debug("Receiving response")
 response = conn.getresponse()
 print(response.status, response.reason)

@@ -29,7 +29,7 @@ public class AddUserActivity extends AppCompatActivity {
 
     FirebaseUser mFirebaseUser;
     //DatabaseReference mFirebaseReference;
-    DatabaseReference tokenReference;
+    DatabaseReference memberReference;
     ValueEventListener tokenListener;
 
     SharedPreferences sharedPref;
@@ -45,8 +45,8 @@ public class AddUserActivity extends AppCompatActivity {
         encoder = new BarcodeEncoder();
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         inviteToken = sharedPref.getString("invite_token", null);
-        tokenReference = FirebaseDatabase.getInstance().getReference().child("groups")
-                .child(groupID).child("tokens");
+        memberReference = FirebaseDatabase.getInstance().getReference().child("groups")
+                .child(groupID).child("members").child(userID);
         if (inviteToken != null) {
             encodeQR(groupID, userID, inviteToken);
         }
@@ -54,7 +54,8 @@ public class AddUserActivity extends AppCompatActivity {
         tokenListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                inviteToken = dataSnapshot.toString();
+                GroupMember member = dataSnapshot.getValue(GroupMember.class);
+                inviteToken = member.getQR();
                 SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
                 sharedPrefEditor.putString("invite_token", inviteToken);
                 sharedPrefEditor.apply();
@@ -66,14 +67,14 @@ public class AddUserActivity extends AppCompatActivity {
 
             }
         };
-        tokenReference.addValueEventListener(tokenListener);
+        memberReference.addValueEventListener(tokenListener);
 
     }
 
     private void encodeQR(String groupID, String userID, String inviteToken){
         String stringToEncode = groupID+";"+userID+";"+inviteToken;
         try {
-            Bitmap bitmap = encoder.encodeBitmap(stringToEncode, BarcodeFormat.QR_CODE, 400, 400);
+            Bitmap bitmap = encoder.encodeBitmap(stringToEncode, BarcodeFormat.QR_CODE, 800, 800);
             imageView.setImageBitmap(bitmap);
         } catch (WriterException wr) {
             return;
@@ -82,7 +83,7 @@ public class AddUserActivity extends AppCompatActivity {
 
     @Override
     public void onStop() {
-        tokenReference.removeEventListener(tokenListener);
+        memberReference.removeEventListener(tokenListener);
         super.onStop();
     }
 }

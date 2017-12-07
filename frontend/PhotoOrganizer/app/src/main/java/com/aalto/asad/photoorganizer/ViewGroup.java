@@ -2,6 +2,7 @@ package com.aalto.asad.photoorganizer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,37 +16,33 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ViewGroup extends AppCompatActivity {
 
     private static final String TAG = "MCC";
+    private static final String leaveGroupUrl = "/leaveOrDeleteGroup";
 
-    //private TextView groupInfo;
-    //private TextView groupNameLabel;
     private TextView groupNameText;
-    //private TextView groupExpirationLabel;
     private TextView groupExpirationText;
-    //private TextView membersLabel;
     private Button addMemberButton;
-    //private ListView memberList;
-    //private ProgressBar progressBar;
-    //private List<View> viewGroupViews;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private String userID;
-    private DatabaseReference mUserGroupsReference;
     private DatabaseReference mGroupReference;
-    private ValueEventListener mUserGroupsListener;
     private ValueEventListener mGroupListener;
     private String groupID;
     private Group group;
@@ -60,8 +57,8 @@ public class ViewGroup extends AppCompatActivity {
         groupExpirationText =(TextView) findViewById(R.id.groupExpirationText);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        userID = mFirebaseUser.getUid();
-        mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("userGroups");
+        groupID = getIntent().getStringExtra("Group");
+
         addMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,8 +67,8 @@ public class ViewGroup extends AppCompatActivity {
                     intent.putExtra("Group", groupID);
                     startActivity(intent);
                 } else {
+                    //This should never happen
                     Toast.makeText(ViewGroup.this, "Something went wrong", Toast.LENGTH_LONG).show();
-                    return;
                 }
             }
         });
@@ -80,32 +77,6 @@ public class ViewGroup extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-
-        ValueEventListener userGroupsListener = new ValueEventListener(){
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot){
-                if((!dataSnapshot.hasChild(userID)) || dataSnapshot.child(userID) == null) {
-                    Intent intent = new Intent(ViewGroup.this, GroupManagement.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    UserGroup userGroup = dataSnapshot.child(userID).getValue(UserGroup.class);
-                    groupID = userGroup.getUserGroup();
-                    setGroupListener(groupID);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "userGroupListener:onCancelled");
-                Toast.makeText(ViewGroup.this, "Unable to read user's group from database.", Toast.LENGTH_LONG).show();
-            }
-        };
-        mUserGroupsListener = userGroupsListener;
-        mUserGroupsReference.addListenerForSingleValueEvent(userGroupsListener);
-    }
-
-    private void setGroupListener(String groupID) {
         ValueEventListener groupListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
@@ -149,24 +120,31 @@ public class ViewGroup extends AppCompatActivity {
         }
     }
 
-    //TODO: Replace with real API call
+    //TODO: Check the needed params
     private void leaveGroup() {
-        if (mGroupReference != null) {
-            mGroupReference.child("members").child(userID).removeValue();
-            mUserGroupsReference.child(userID).removeValue();
-            finish();
-        }
+        //Get user token from Firebase
+        mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String userToken = task.getResult().getToken();
+                    ApiForBackend commHandler = new ApiForBackend();
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("userToken", userToken);
+                    String res = commHandler.executePost(leaveGroupUrl, params);
+                    Log.i(TAG, "response " + res);
+                } else {
+                    Toast.makeText(ViewGroup.this, "Unable to read user information from database.", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "userToken:failure " + task.getException().getMessage());
+                }
+            }
+        });
+
     }
 
     @Override
     public void onStop() {
-
         super.onStop();
-
-        if (mUserGroupsListener != null) {
-            mUserGroupsReference.removeEventListener(mUserGroupsListener);
-        }
-
+        // Detach the ValueEventListener for group information
         if (mGroupListener != null) {
             mGroupReference.removeEventListener(mGroupListener);
         }
