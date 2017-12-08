@@ -55,4 +55,23 @@ def process(path):
     else:
         return path+" not available"
 
+@route('/deleteExpired',method = 'GET')
+def deleteExpired():
+    function = 'deleteExpired'
+    if function in functions:
+        logging.debug("Server received request to delete expired groups")
+        try:
+            ret = functions[function](request.forms)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            traceback.print_exc()
+            return "FAIL"
+        if ret:
+            return ret
+        else:
+            return "OK"
+    else:
+        return "deleteExpired not available"
+
 run(host='0.0.0.0', port=8080, debug=True, server='paste')

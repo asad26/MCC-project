@@ -6,7 +6,7 @@ logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(messag
 
 logging.debug("Running leave or delete group test")
 
-email="testuser@gmail.com"
+email="testman2@gmail.com"
 password="password"
 
 config = {
