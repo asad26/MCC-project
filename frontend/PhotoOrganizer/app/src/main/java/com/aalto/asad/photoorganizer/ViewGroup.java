@@ -27,14 +27,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class ViewGroup extends AppCompatActivity {
 
     private static final String TAG = "MCC";
-    private static final String leaveGroupUrl = "/leaveOrDeleteGroup";
+    private static final String leaveGroupUrl = "https://mcc-fall-2017-g18.appspot.com/leaveOrDeleteGroup";
 
     private TextView groupNameText;
     private TextView groupExpirationText;
@@ -49,7 +60,7 @@ public class ViewGroup extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_group);
         addMemberButton = (Button) findViewById(R.id.addMemberButton);
@@ -76,6 +87,7 @@ public class ViewGroup extends AppCompatActivity {
 
     @Override
     public void onStart() {
+        mGroupReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupID);
         super.onStart();
         ValueEventListener groupListener = new ValueEventListener() {
             @Override
@@ -91,14 +103,14 @@ public class ViewGroup extends AppCompatActivity {
             }
         };
         mGroupListener = groupListener;
-        mGroupReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupID);
-        mGroupReference.addValueEventListener(groupListener);
+        mGroupReference.addListenerForSingleValueEvent(groupListener);
     }
 
     //TODO: display group member names as well
     private void displayGroupInfo(Group group) {
-        groupNameText.setText(group.getGroupName());
-        groupExpirationText.setText(String.valueOf(group.getExpiryTime()));
+        groupNameText.setText(group.getName());
+        Date expiry = new Date(group.getExpiry() * 1000);
+        groupExpirationText.setText(String.valueOf(expiry.toString()));
     }
 
     @Override
@@ -120,18 +132,47 @@ public class ViewGroup extends AppCompatActivity {
         }
     }
 
-    //TODO: Check the needed params
     private void leaveGroup() {
         //Get user token from Firebase
         mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             public void onComplete(@NonNull Task<GetTokenResult> task) {
                 if (task.isSuccessful()) {
                     String userToken = task.getResult().getToken();
-                    ApiForBackend commHandler = new ApiForBackend();
-                    HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("userToken", userToken);
-                    //String res = commHandler.executePost(leaveGroupUrl, params);
-                    //Log.i(TAG, "response " + res);
+
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    FormBody.Builder formBuilder = new FormBody.Builder();
+                    formBuilder.add("userToken", userToken);
+                    RequestBody formBody = formBuilder.build();
+
+                    //Send the request
+                    Request request = new Request.Builder()
+                            .url(leaveGroupUrl)
+                            .post(formBody)
+                            .build();
+
+                    okHttpClient.newCall(request).enqueue(new Callback() {
+
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            Toast.makeText(ViewGroup.this, "Unable to leave group, try again later.", Toast.LENGTH_LONG).show();
+                            Log.i(TAG, "executePost:failure " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            if (response.isSuccessful()) {
+                                String res = response.body().string();
+                                Log.i(TAG, "executePost:ResponseSuccess " + res);
+                                Intent intent = new Intent(getApplicationContext(), GridActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(ViewGroup.this, "Unable to leave group, try again later.", Toast.LENGTH_LONG).show();
+                                Log.i(TAG, "executePost:ResponseFailure");
+                            }
+                        }
+                    });
                 } else {
                     Toast.makeText(ViewGroup.this, "Unable to read user information from database.", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "userToken:failure " + task.getException().getMessage());

@@ -20,13 +20,22 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.google.zxing.qrcode.encoder.QRCode;
 
+import java.io.IOException;
 import java.util.HashMap;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class GroupManagement extends AppCompatActivity {
 
     private static final String TAG = "MCC";
     //TODO: Replace with real value
-    private static final String joinGroupUrl = "/join-group";
+    private static final String joinGroupUrl = "https://mcc-fall-2017-g18.appspot.com/joinGroup";
 
     private Button createGroupButton;
     private Button joinGroupButton;
@@ -76,22 +85,49 @@ public class GroupManagement extends AppCompatActivity {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
                 //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
-                String[] res = result.getContents().split(";");
-                groupID = res[0];
-                inviterID = res[1];
-                inviterToken = res[2];
+                inviterToken = result.getContents();
+                String[] strs = inviterToken.split("/");
+                groupID = strs[0];
                 mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             String userToken = task.getResult().getToken();
-                            ApiForBackend commHandler = new ApiForBackend();
-                            HashMap<String, String> params = new HashMap<String, String>();
-                            params.put("groupID", groupID);
-                            params.put("inviterID", inviterID);
-                            params.put("inviterToken", inviterToken);
-                            params.put("userToken", userToken);
-                            //String res = commHandler.executePost(joinGroupUrl, params);
-                            //Log.i(TAG, "response " + res);
+
+                            OkHttpClient okHttpClient = new OkHttpClient();
+                            FormBody.Builder formBuilder = new FormBody.Builder();
+                            formBuilder.add("QRToken", inviterToken);
+                            formBuilder.add("userToken", userToken);
+                            RequestBody formBody = formBuilder.build();
+
+                            //Send the request
+                            Request request = new Request.Builder()
+                                    .url(joinGroupUrl)
+                                    .post(formBody)
+                                    .build();
+
+                            okHttpClient.newCall(request).enqueue(new Callback() {
+
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    Toast.makeText(GroupManagement.this, "Unable to join group, try again later.", Toast.LENGTH_LONG).show();
+                                    Log.i(TAG, "executePost:failure " + e.getMessage());
+                                }
+
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    if (response.isSuccessful()) {
+                                        String res = response.body().string();
+                                        Log.i(TAG, "executePost:ResponseSuccess " + res);
+                                        Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                                        viewGroupIntent.putExtra("Group", groupID);
+                                        viewGroupIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        startActivity(viewGroupIntent);
+                                        finish();
+                                    } else {
+                                        Log.i(TAG, "executePost:ResponseFailure");
+                                    }
+                                }
+                            });
                         } else {
                             Toast.makeText(GroupManagement.this, "Unable to read user information from database.", Toast.LENGTH_LONG).show();
                             Log.d(TAG, "userToken:failure " + task.getException().getMessage());

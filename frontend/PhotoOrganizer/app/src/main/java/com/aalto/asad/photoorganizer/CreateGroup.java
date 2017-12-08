@@ -21,12 +21,25 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class CreateGroup extends AppCompatActivity {
 
     private static final String TAG = "MCC";
-    private static final String createGroupUrl = "/createGroup";
+    private static final String createGroupUrl = "https://mcc-fall-2017-g18.appspot.com/createGroup";
 
     private Button createButton;
     private TextView groupNameText;
@@ -68,12 +81,56 @@ public class CreateGroup extends AppCompatActivity {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             String userToken = task.getResult().getToken();
-                            ApiForBackend commHandler = new ApiForBackend();
-                            HashMap<String, String> params = new HashMap<String, String>();
-                            params.put("groupname", name);
-                            params.put("username", mFirebaseUser.getDisplayName());
-                            params.put("timeToLive", duration);
-                            params.put("userToken", userToken);
+
+                            OkHttpClient okHttpClient = new OkHttpClient();
+                            FormBody.Builder formBuilder = new FormBody.Builder();
+                            formBuilder.add("groupname", name);
+                            formBuilder.add("username", mFirebaseUser.getDisplayName());
+                            formBuilder.add("timeToLive", duration);
+                            formBuilder.add("userToken", userToken);
+                            RequestBody formBody = formBuilder.build();
+
+                            //Send the request
+                            Request request = new Request.Builder()
+                                    .url(createGroupUrl)
+                                    .post(formBody)
+                                    .build();
+
+                            okHttpClient.newCall(request).enqueue(new Callback() {
+
+                                @Override
+                                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                    createGroupProgressBar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(CreateGroup.this, "Unable to create group, try again later.", Toast.LENGTH_LONG).show();
+                                    Log.i(TAG, "executePost:failure " + e.getMessage());
+                                }
+
+                                @Override
+                                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                    if (response.isSuccessful()) {
+                                        Log.i(TAG, "executePost:ResponseSuccess " + response);
+                                        try {
+                                            JSONObject result = new JSONObject(response.body().string());
+                                            String groupID = result.getString("groupID");
+                                            Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                                            viewGroupIntent.putExtra("Group", groupID);
+                                            viewGroupIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                            startActivity(viewGroupIntent);
+                                            finish();
+                                        } catch (JSONException e) {
+                                            createGroupProgressBar.setVisibility(View.INVISIBLE);
+                                            Toast.makeText(CreateGroup.this, "Unexpected response from server.", Toast.LENGTH_LONG).show();
+                                            Log.i(TAG, "Couldn't parse the response");
+                                            return;
+                                        }
+                                    } else {
+                                        createGroupProgressBar.setVisibility(View.INVISIBLE);
+                                        Toast.makeText(CreateGroup.this, "Unable to create group, try again later.", Toast.LENGTH_LONG).show();
+                                        Log.i(TAG, "executePost:ResponseFailure");
+                                    }
+                                }
+                            });
+
                             //String res = commHandler.executePost(createGroupUrl, params);
                             //Log.i(TAG, "response " + res);
                         } else {

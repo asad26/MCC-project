@@ -72,9 +72,8 @@ public class AddUserActivity extends AppCompatActivity {
     }
 
     private void encodeQR(String groupID, String userID, String inviteToken){
-        String stringToEncode = groupID+";"+userID+";"+inviteToken;
         try {
-            Bitmap bitmap = encoder.encodeBitmap(stringToEncode, BarcodeFormat.QR_CODE, 800, 800);
+            Bitmap bitmap = encoder.encodeBitmap(inviteToken, BarcodeFormat.QR_CODE, 800, 800);
             imageView.setImageBitmap(bitmap);
         } catch (WriterException wr) {
             return;
