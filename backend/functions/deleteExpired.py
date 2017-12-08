@@ -14,12 +14,16 @@ def main(kwargs_dict):
 
 def deleteExpired(db):
     groups = db.child("groups").get()
+    if(str(groups.val())=='None'):
+        return "No groups"
+    deletionHistory = ''
     for group in groups.each():
         if 'expiry' in group.val():
             expiry = group.val()['expiry']
             if expiry<time():
                 groupID = str(group.key())
-                return deleteGroup(db, groupID)
+                deletionHistory += deleteGroup(db, groupID)
+    return deletionHistory
 
 def deleteGroup(database, groupID):
     #Remove group id from every member
@@ -30,7 +34,7 @@ def deleteGroup(database, groupID):
     #TODO delete images related to group
     logging.debug("Deleting group: "+groupID)
     database.child("groups").child(groupID).remove()
-    return "Removed group "+groupID
+    return "Removed group "+groupID+"\n"
 
 if __name__ == "__main__":
     main(None)

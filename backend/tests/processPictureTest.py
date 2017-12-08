@@ -1,6 +1,11 @@
 import http.client, urllib.parse
 import pyrebase
 import logging
+import sys
+
+if (len(sys.argv) != 3):
+    print("Usage: " + sys.argv[0] +" group_id " + "upload_file")
+    exit()
 
 logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
@@ -23,10 +28,18 @@ firebase = pyrebase.initialize_app(config)
 logging.debug("Authorizing firebase")
 auth = firebase.auth()
 user=auth.sign_in_with_email_and_password(email, password)
+fb_storage = firebase.storage()
 
+picture_path = "/".join([
+    "pictures",
+    sys.argv[1],
+    user["localId"],
+    "rand_picture_name"
+])
+fb_storage.child(picture_path).put(sys.argv[2], user["idToken"])
 
 logging.debug("Initializing group data")
-data = {"picture_path":"-L-XEK4zfbxmXhcfdV2y/qr.png", "userToken": user['idToken']}
+data = {"picture_path": picture_path, "userToken": user['idToken']}
 postData = urllib.parse.urlencode(data)
 
 

@@ -74,8 +74,8 @@ public class CreateGroup extends AppCompatActivity {
                             params.put("username", mFirebaseUser.getDisplayName());
                             params.put("timeToLive", duration);
                             params.put("userToken", userToken);
-                            String res = commHandler.executePost(createGroupUrl, params);
-                            Log.i(TAG, "response " + res);
+                            //String res = commHandler.executePost(createGroupUrl, params);
+                            //Log.i(TAG, "response " + res);
                         } else {
                             Toast.makeText(CreateGroup.this, "Network error, try again later.", Toast.LENGTH_LONG).show();
                             Log.d(TAG, "userToken:failure " + task.getException().getMessage());

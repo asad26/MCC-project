@@ -15,6 +15,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.chrisbanes.photoview.PhotoViewAttacher;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +41,14 @@ public class PrivateImageActivity extends AppCompatActivity {
         privateGridView = (GridView) findViewById(R.id.private_grid_view);
         imageList = new ArrayList<String>();
 
-        //loadImagesFromDirectory();
         ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GridActivity.imagesPath);
         privateGridView.setAdapter(adapter);
+
+        privateGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+
+            }
+        });
     }
 
 
