@@ -58,8 +58,11 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
                 p["filename"] += "_" + str(p["width"])
                 im.thumbnail((p["width"], p["height"]), Image.ANTIALIAS)
                 p_local_path = os.path.join(tmp_folder, p["filename"])
-                im.save(p_local_path, "JPEG")
-                fb_storage.child(picture_remote_folder + "/" + p["filename"]).put(p_local_path)
+                with open(p_local_path, "a+b") as p_file:
+                    p_file.truncate()
+                    im.save(p_file, "JPEG")
+                    p_file.seek(0)
+                    fb_storage.child(picture_remote_folder + "/" + p["filename"]).put(p_file)
                 if not face_detection_picture_path:
                     face_detection_picture_path = p_local_path
                 else:
