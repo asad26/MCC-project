@@ -1,8 +1,5 @@
 package com.aalto.asad.photoorganizer;
 
-/**
- * Created by Juuso on 6.12.2017.
- */
 
 public class GroupMember {
 

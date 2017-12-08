@@ -19,6 +19,7 @@ def create_group(db, groupname, username, timeToLive, userToken):
     if authenticated:
         if joinGroup.isInGroup(db, uid):
             return "Can't create group, already in group"
+        username = getUsername(db, uid)
         logging.debug("Creating group data")
         userData = {
             "name":username,
@@ -53,6 +54,10 @@ def create_group(db, groupname, username, timeToLive, userToken):
         return json.dumps(returnData)
     else:
         return "User authentication failed"
+
+def getUsername(db, userID):
+    name = db.child("users").child(userID).child("userName").get().val()
+    return str(name)
 
 #defines the expiry time in Unix Epoch Time
 def get_expiry(timeToLive):

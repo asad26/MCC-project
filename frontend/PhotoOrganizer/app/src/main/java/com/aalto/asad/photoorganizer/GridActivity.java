@@ -122,12 +122,22 @@ public class GridActivity extends AppCompatActivity {
     ApiForBackend api;
     public static List<String> imagesPath;
 
+    /** This is hot to read the sync preferences
+    //Get a reference to shared preferences
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+    //Find a preference value by key
+    String mdataSync = sharedPref.getString("pref_key_mdata_sync", "");
+    String wifiSync = sharedPref.getString("pref_key_wifi_sync", "");
+    String groupID = sharedPref.getString("group_id", "");
+    */
+
     // For settings preference
     private SharedPreferences sharedPref;
     private String mdataSync;
     private String wifiSync;
 
     private int networkStatus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +153,7 @@ public class GridActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         userID = mFirebaseUser.getUid();
-        mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("userGroups");
+        mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userID);
         storageReference = FirebaseStorage.getInstance().getReference();
 
         imagesPath = new ArrayList<String>();
@@ -251,13 +261,18 @@ public class GridActivity extends AppCompatActivity {
         ValueEventListener userGroupsListener = new ValueEventListener(){
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
-                if((!dataSnapshot.hasChild(userID)) || dataSnapshot.child(userID) == null) {
+                if((!dataSnapshot.hasChild("groupID")) || dataSnapshot.child("groupID") == null) {
+                    User user = dataSnapshot.getValue(User.class);
                     Log.i(TAG, "Checking user group, none found");
                     groupID = "";
                 } else {
-                    UserGroup userGroup = dataSnapshot.child(userID).getValue(UserGroup.class);
-                    groupID = userGroup.getUserGroup();
-                    Log.i(TAG, "Checking user group, found: " + groupID);
+                    User user = dataSnapshot.getValue(User.class);
+                    groupID = user.getGroupID();
+                    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("group_id", groupID);
+                    editor.commit();
+                    Log.i(TAG, "Checking user group, found: " + sharedPref.getString("group_id", ""));
                 }
             }
 
