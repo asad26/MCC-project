@@ -130,8 +130,8 @@ public class ViewGroup extends AppCompatActivity {
                     ApiForBackend commHandler = new ApiForBackend();
                     HashMap<String, String> params = new HashMap<String, String>();
                     params.put("userToken", userToken);
-                    String res = commHandler.executePost(leaveGroupUrl, params);
-                    Log.i(TAG, "response " + res);
+                    //String res = commHandler.executePost(leaveGroupUrl, params);
+                    //Log.i(TAG, "response " + res);
                 } else {
                     Toast.makeText(ViewGroup.this, "Unable to read user information from database.", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "userToken:failure " + task.getException().getMessage());

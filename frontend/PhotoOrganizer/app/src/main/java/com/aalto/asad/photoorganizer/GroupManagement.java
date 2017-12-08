@@ -90,8 +90,8 @@ public class GroupManagement extends AppCompatActivity {
                             params.put("inviterID", inviterID);
                             params.put("inviterToken", inviterToken);
                             params.put("userToken", userToken);
-                            String res = commHandler.executePost(joinGroupUrl, params);
-                            Log.i(TAG, "response " + res);
+                            //String res = commHandler.executePost(joinGroupUrl, params);
+                            //Log.i(TAG, "response " + res);
                         } else {
                             Toast.makeText(GroupManagement.this, "Unable to read user information from database.", Toast.LENGTH_LONG).show();
                             Log.d(TAG, "userToken:failure " + task.getException().getMessage());

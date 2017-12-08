@@ -14,8 +14,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -74,6 +76,10 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -86,7 +92,11 @@ public class GridActivity extends AppCompatActivity {
     private static final int CAPTURE_IMAGE = 1;
     //private static final int ANDROID_CAMERA_REQUEST_CODE = 100;
     private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 2;
-    //private static boolean isBarcode = true;
+    private static boolean isBarcode = true;
+
+    private static final int TYPE_WIFI = 100;
+    private static final int TYPE_MOBILE_DATA = 101;
+    private static final int TYPE_NO_NETWORK = 102;
 
     private Button groupManagement;
     private Button signOut;
@@ -110,16 +120,14 @@ public class GridActivity extends AppCompatActivity {
     public static List<PhotoAlbum> albumList;
     private HashMap<String, String> params;
     ApiForBackend api;
-
     public static List<String> imagesPath;
 
-    /** This is hot to read the sync preferences
-    //Get a reference to shared preferences
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    //Find a preference value by key
-    String mdataSync = sharedPref.getString("pref_key_mdata_sync", "");
-    String wifiSync = sharedPref.getString("pref_key_wifi_sync", "");
-    */
+    // For settings preference
+    private SharedPreferences sharedPref;
+    private String mdataSync;
+    private String wifiSync;
+
+    private int networkStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,9 +137,7 @@ public class GridActivity extends AppCompatActivity {
         groupManagement = (Button) findViewById(R.id.buttonGroup);
         signOut = (Button) findViewById(R.id.logOut);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-
         buttonSettings = (Button) findViewById(R.id.buttonSettings);
-
         imagesGallery = (Button) findViewById(R.id.buttonGallery);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -141,11 +147,12 @@ public class GridActivity extends AppCompatActivity {
         storageReference = FirebaseStorage.getInstance().getReference();
 
         imagesPath = new ArrayList<String>();
-
         albumList = new ArrayList<PhotoAlbum>();
 
         params = new HashMap<String, String>();
         api = new ApiForBackend();
+
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
 
         // Retrieve user ID token
         mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
@@ -163,20 +170,14 @@ public class GridActivity extends AppCompatActivity {
         imagesGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //<-------------------------------------- Example for calling ApiForBackend
-//                params.put("usergroup", "Picnic");
-//                params.put("username", "Asad");
-//                String res = api.executePost("ip", params);
-//                Log.i(TAG, "response " + res);
-                //<--------------------------------------
+                //String rrr = ap.executePost("createGroup", params);
+                //Log.d(TAG, "response " + rrr);
+                //api.executePost("create-group", params);
 
                 loadImagesFromDirectory();
                 String thumbnail = imagesPath.get(imagesPath.size() - 1);
                 PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
                 albumList.add(a);
-                PhotoAlbum b = new PhotoAlbum("Picnic", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
-                albumList.add(b);
                 Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
                 startActivity(intent);
             }
@@ -199,6 +200,8 @@ public class GridActivity extends AppCompatActivity {
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                networkStatus = checkNetworkStatus(GridActivity.this);
+                Log.d(TAG, "network status " + networkStatus);
                 //if (groupID.isEmpty()) {
                 //    Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
                // } else {
@@ -216,6 +219,14 @@ public class GridActivity extends AppCompatActivity {
         buttonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+//                Api ap = new Api();
+//                params.put("groupname", "Picnic");
+//                params.put("username", "Asad");
+//                params.put("timeToLive", "10");
+//                params.put("userToken", userToken);
+//
+//                ap.executePost("/createGroup", params);
                 Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(settingIntent);
             }
@@ -314,7 +325,6 @@ public class GridActivity extends AppCompatActivity {
                     Log.i(TAG, "Camera and Storage Permissions granted");
                     Toast.makeText(this, "Camera and Storage Permissions granted", Toast.LENGTH_LONG).show();
                     takePictureIntent();
-                    // process the normal flow
 
                 } else {
                     Log.i(TAG, "Permissions are not granted. ");
@@ -349,31 +359,25 @@ public class GridActivity extends AppCompatActivity {
         if (requestCode == CAPTURE_IMAGE) {
             if (resultCode == Activity.RESULT_OK) {
                 Uri imageUri = Uri.fromFile(new File(imageFile.getAbsolutePath()));
-                ProcessImages processImages = new ProcessImages();
-                processImages.execute(imageUri);
+                try {
+                    Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                    ProcessImages processImages = new ProcessImages();
+                    processImages.execute(imageBitmap);
+                } catch (IOException e) {
+                    Log.e(TAG, e.getMessage());
+                }
             } else {
                 Toast.makeText(GridActivity.this, "Failed to capture image", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private class ProcessImages extends AsyncTask<Uri, Void, Boolean> {
-
-        Bitmap imageBitmap;
-        Uri imageUri;
+    private class ProcessImages extends AsyncTask<Bitmap, Void, Bitmap> {
 
         @Override
-        protected Boolean doInBackground(Uri... uris) {
-
-            imageUri = uris[0];
-            try {
-                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+        protected Bitmap doInBackground(Bitmap... bitmaps) {
             BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext()).build();
-            Frame frame = new Frame.Builder().setBitmap(imageBitmap).build();
+            Frame frame = new Frame.Builder().setBitmap(bitmaps[0]).build();
             SparseArray<Barcode> barcode = barcodeDetector.detect(frame);
 
             if(!barcodeDetector.isOperational()){
@@ -386,79 +390,92 @@ public class GridActivity extends AppCompatActivity {
             }
 
             if (barcode.size() != 0) {
+                isBarcode = true;
                 Log.i(TAG, "This image has a barcode");
                 barcodeDetector.release();
                 barcode.clear();
-                return true;
+                return bitmaps[0];
             }
             else {
+                isBarcode = false;
                 Log.i(TAG, "This image is not barcode");
-                return false;
+                return bitmaps[0];
             }
         }
 
         @Override
-        protected void onPostExecute(Boolean isBarcode) {
-            super.onPostExecute(isBarcode);
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
             if (isBarcode) {
-                saveImageToStorage(imageBitmap);
-                Toast.makeText(GridActivity.this, "This is barcode ", Toast.LENGTH_LONG).show();
+                saveImageToStorage(bitmap);
+                Toast.makeText(GridActivity.this, "This is barcode. Image saved", Toast.LENGTH_LONG).show();
             } else {
-                //Store in a Firebase storage
-                StorageReference imageReference = storageReference.child("photos").child(imageFile.getName());
-                UploadTask uploadTask = imageReference.putFile(imageUri);
-
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.i(TAG, "pictureUpload:failure " + exception.getMessage());
-                        Toast.makeText(GridActivity.this, "Upload failure: " + exception.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        Log.i(TAG, "image URL " + downloadUrl);
-                        Toast.makeText(GridActivity.this, "Picture uploaded", Toast.LENGTH_LONG).show();
-                    }
-                });
-
+                String resolution = checkSettings();
+                if (resolution != null) {
+                    storeImageInFirebase(bitmap, resolution);
+                }
             }
             Log.i(TAG, "Image successfully processed and displayed");
         }
-    }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//
-//        ValueEventListener postListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                User user = dataSnapshot.getValue(User.class);
-//                Log.d(TAG, "User Name: " + user.userName);
-//                testDisplay.setText(user.userName);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Log.w(TAG, "postListener:onCancelled ", databaseError.toException());
-//            }
-//        };
-//        mDatabaseReference.addValueEventListener(postListener);
-//        copyPostListener = postListener;
-//    }
-//
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//
-//        // Remove post value event listener
-//        if (copyPostListener != null) {
-//            mDatabaseReference.removeEventListener(copyPostListener);
-//        }
-//    }
+        private String checkSettings() {
+            String resolution;
+            int networkStatus = checkNetworkStatus(GridActivity.this);
+            //Log.d(TAG, "network status " + networkStatus);
+            if (networkStatus == TYPE_WIFI) {
+                resolution = sharedPref.getString("pref_key_wifi_sync", "");
+            } else if (networkStatus == TYPE_MOBILE_DATA) {
+                resolution = sharedPref.getString("pref_key_mdata_sync", "");
+            } else {
+                Log.d(TAG, "No internet connection. Please enable internet connection");
+                Toast.makeText(GridActivity.this, "No internet connection", Toast.LENGTH_LONG).show();
+                resolution = null;
+            }
+            return resolution;
+        }
+
+
+        private void storeImageInFirebase(Bitmap bitmap, String resolution) {
+
+            Bitmap newBitmap;
+            switch (resolution) {
+                case "Low":
+                    newBitmap = getResizedBitmap(bitmap, 640, 480);
+                    Log.i(TAG, "picture Size: " + newBitmap.getWidth() + " x " + newBitmap.getHeight());
+                    break;
+                case "High":
+                    newBitmap = getResizedBitmap(bitmap, 1280, 960);
+                    Log.i(TAG, "picture Size: " + newBitmap.getWidth() + " x " + newBitmap.getHeight());
+                    break;
+                default:
+                    newBitmap = bitmap;
+                    Log.i(TAG, "picture Size: " + newBitmap.getWidth() + " x " + newBitmap.getHeight());
+                    break;
+            }
+
+            StorageReference imageReference = storageReference.child("photos").child(imageFile.getName());
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            String path = MediaStore.Images.Media.insertImage(GridActivity.this.getContentResolver(), newBitmap, imageFile.getName(), null);
+            UploadTask uploadTask = imageReference.putFile(Uri.parse(path));
+
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Log.i(TAG, "pictureUpload:failure " + exception.getMessage());
+                    Toast.makeText(GridActivity.this, "Upload failure: " + exception.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    Log.i(TAG, "image URL " + downloadUrl);
+                    Toast.makeText(GridActivity.this, "Picture uploaded", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
@@ -506,7 +523,47 @@ public class GridActivity extends AppCompatActivity {
 
         for (File aListFile : listFile) {
             imagesPath.add(aListFile.getAbsolutePath());
-            //Log.i(TAG, "Image path in Private Activity: " + aListFile.getAbsolutePath());
         }
+    }
+
+    private int checkNetworkStatus(Context mContext) {
+
+        int networkStatus;
+        final ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert manager != null;
+        final android.net.NetworkInfo wifi = manager.getActiveNetworkInfo();
+        final android.net.NetworkInfo mobile = manager.getActiveNetworkInfo();
+
+        if( wifi.getType() == ConnectivityManager.TYPE_WIFI) {
+            networkStatus = TYPE_WIFI;
+        }else if(mobile.getType() == ConnectivityManager.TYPE_MOBILE){
+            networkStatus = TYPE_MOBILE_DATA;
+        }else{
+            networkStatus = TYPE_NO_NETWORK;
+        }
+        return networkStatus;
+    }
+
+
+    public Bitmap getResizedBitmap(Bitmap bitmap, int newWidth, int newHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+
+        Matrix matrix = new Matrix();
+
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, false);
+        bitmap.recycle();
+        return resizedBitmap;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        albumList.clear();
+        imagesPath.clear();
     }
 }
