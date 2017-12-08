@@ -9,6 +9,7 @@ from PIL import Image
 from google.cloud import vision
 from google.cloud.vision import types
 import http.client, urllib.parse
+import tempfile
 
 
 def main(kwargs_dict):
@@ -31,7 +32,7 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
         picture_group = picture_path[:ind]
         picture_name = picture_path[ind + 1:]
 
-        tmp_folder = "tmp"
+        tmp_folder = tempfile.mkdtemp(prefix="mcc-fall-2017-g18")
         picture_local_path = os.path.join(tmp_folder, picture_name)
         fb_storage.child(picture_path).download(picture_local_path)
 
@@ -71,6 +72,7 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
             contains_people = True
 
         os.unlink(face_detection_picture_path)
+        os.rmdir(tmp_folder)
 
         picture_data = {
             "user_id": uid,
