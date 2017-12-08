@@ -28,9 +28,20 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
     if authenticated:
         logging.debug("Processing picture: " + picture_path)
 
-        ind = picture_path.find("/")
-        picture_group = picture_path[:ind]
-        picture_name = picture_path[ind + 1:]
+        arr = picture_path.split("/")
+        if (len(arr) != 4):
+            return "picture_path has to be of form "\
+                   "pictures/group_id/user_id/picture_name, was: " + picture_path
+        picture_group_id = arr[1]
+        picture_user_id = arr[2]
+        picture_name = arr[3]
+        picture_remote_folder = "/".join(arr[:3])
+
+        if (picture_user_id != uid):
+            return "Stored picture user must macth request user"
+
+        # no need to verify the group, users only have permissions to their own folders
+        # and the user group might have changed since the upload, so always publish to upload group
 
         tmp_folder = tempfile.mkdtemp(prefix="mcc-fall-2017-g18")
         picture_local_path = os.path.join(tmp_folder, picture_name)
@@ -48,7 +59,7 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
                 im.thumbnail((p["width"], p["height"]), Image.ANTIALIAS)
                 p_local_path = os.path.join(tmp_folder, p["filename"])
                 im.save(p_local_path, "JPEG")
-                fb_storage.child(picture_group + "/" + p["filename"]).put(p_local_path)
+                fb_storage.child(picture_remote_folder + "/" + p["filename"]).put(p_local_path)
                 if not face_detection_picture_path:
                     face_detection_picture_path = p_local_path
                 else:
@@ -80,14 +91,14 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
             "contains_people": contains_people
         }
         for p in downscale_params:
-            picture_data["picture_" + str(p["width"])] = picture_group + "/" + p["filename"]
+            picture_data["picture_" + str(p["width"])] = picture_remote_folder + "/" + p["filename"]
 
-        fb_db.child("groups").child(picture_group).child("pictures").push(picture_data)
+        fb_db.child("groups").child(picture_group_id).child("pictures").push(picture_data)
 
         oauth_token = fb_db.credentials.get_access_token().access_token
         cloud_msg = {
           "message":{
-            "topic" : picture_group,
+            "topic" : picture_group_id,
             "notification" : {
               "body" : "new picture body",
               "title" : "new picture title",
