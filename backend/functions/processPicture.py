@@ -48,6 +48,15 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
         fb_storage.child(picture_path).download(picture_local_path)
 
         im = Image.open(picture_local_path)
+        try:
+            exif = im._getexif()
+            orient = exif[274]
+            orient_list = [0, 0, 180, 0, 0, 270, 0, 90]
+            degrees = orient_list[orient - 1]
+            if degrees:
+                im = im.rotate(degrees, expand=True)
+        except Exception:
+            pass
         width, height = im.size
 
         downscale_params = [{"width": 1280, "height": 960, "filename": picture_name},
