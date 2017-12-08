@@ -23,7 +23,7 @@ import okhttp3.Response;
 public class ApiForBackend {
 
     private static final String TAG = "MCC";
-    public static final String URL = "http://httpbin.org/";
+    public static final String URL = "https://requestb.in/1dqtt1i1";
     private OkHttpClient client;
 
     public ApiForBackend() {
@@ -43,12 +43,19 @@ public class ApiForBackend {
     public String executePost(String functionName, HashMap<String, String> parameters) {
         final String[] postResponse = {null};
         FormBody.Builder formBuilder = new FormBody.Builder();
-        
+
+        //<--------------------Testing only
+        formBuilder.add("function", functionName);
+        functionName = "";
+        //<--------------------Testing only
+
         for (Map.Entry<String, String> entry: parameters.entrySet()) {
             formBuilder.add(entry.getKey(), entry.getValue());
         }
 
         RequestBody formBody = formBuilder.build();
+
+
 
         post(URL + functionName, formBody, new Callback() {
             @Override

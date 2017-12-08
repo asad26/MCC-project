@@ -8,6 +8,7 @@ public class User {
 
     public String userName;
     public String email;
+    public String groupID;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -22,8 +23,8 @@ public class User {
         return this.userName;
     }
 
-    public String getEmail() {
-        return this.email;
-    }
+    public String getEmail() { return this.email; }
+
+    public String getGroupID() { return this.groupID; }
 
 }
