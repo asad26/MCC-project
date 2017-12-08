@@ -220,13 +220,15 @@ public class GridActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-//                Api ap = new Api();
+//                OkHttpClient okHttpClient = new
+//                ApiForBackend ap = new ApiForBackend();
 //                params.put("groupname", "Picnic");
 //                params.put("username", "Asad");
 //                params.put("timeToLive", "10");
 //                params.put("userToken", userToken);
-//
-//                ap.executePost("/createGroup", params);
+//                Request r = ap.executePost("/createGroup", params);
+
+
                 Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(settingIntent);
             }
@@ -453,7 +455,8 @@ public class GridActivity extends AppCompatActivity {
                     break;
             }
 
-            StorageReference imageReference = storageReference.child("photos").child(imageFile.getName());
+            final String st = "pictures/qwerty/" + userID + "/" + imageFile.getName();
+            StorageReference imageReference = storageReference.child(st);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
             String path = MediaStore.Images.Media.insertImage(GridActivity.this.getContentResolver(), newBitmap, imageFile.getName(), null);
@@ -470,11 +473,18 @@ public class GridActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    sendUrlToBackend(st);
                     Log.i(TAG, "image URL " + downloadUrl);
                     Toast.makeText(GridActivity.this, "Picture uploaded", Toast.LENGTH_LONG).show();
                 }
             });
         }
+    }
+
+    private void sendUrlToBackend(String downloadUrl) {
+        params.put("picture_path", downloadUrl);
+        params.put("userToken", userToken);
+        api.executePost("/processPicture", params);
     }
 
     private File createImageFile() throws IOException {

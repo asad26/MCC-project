@@ -27,6 +27,7 @@ public class ApiForBackend {
 
     private static final String TAG = "MCC";
     public static final String URL = "https://mcc-fall-2017-g18.appspot.com";
+    //public static final String URL = "http://192.168.43.66:8080";
 
     public void executePost(final String functionName, HashMap<String, String> parameters) {
 
@@ -54,14 +55,6 @@ public class ApiForBackend {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String res = response.body().string();
-
-                    //<----------------------------------------------
-
-                    // Here the res can be parsed and we can handle group management
-
-                    //<-----------------------------
-
-
                     Log.i(TAG, "executePost:ResponseSuccess " + res);
                 } else {
                     Log.i(TAG, "executePost:ResponseFailure");
