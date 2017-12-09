@@ -117,11 +117,12 @@ public class GridActivity extends AppCompatActivity {
 
     private File imageFile = null;
     private String userToken;
-    public static List<PhotoAlbum> albumList;
+    //public static List<PhotoAlbum> albumList;
     private HashMap<String, String> params;
     ApiForBackend api;
-    public static List<String> imagesPath;
+    //public static List<String> imagesPath;
 
+    private DownloadImages downloadImages;
     /** This is hot to read the sync preferences
     //Get a reference to shared preferences
     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -156,11 +157,13 @@ public class GridActivity extends AppCompatActivity {
         mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userID);
         storageReference = FirebaseStorage.getInstance().getReference();
 
-        imagesPath = new ArrayList<String>();
-        albumList = new ArrayList<PhotoAlbum>();
+        //imagesPath = new ArrayList<String>();
+        //albumList = new ArrayList<PhotoAlbum>();
 
         params = new HashMap<String, String>();
         api = new ApiForBackend();
+
+        downloadImages = new DownloadImages(GridActivity.this);
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
 
@@ -180,16 +183,18 @@ public class GridActivity extends AppCompatActivity {
         imagesGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //String rrr = ap.executePost("createGroup", params);
-                //Log.d(TAG, "response " + rrr);
-                //api.executePost("create-group", params);
-
-                loadImagesFromDirectory();
-                String thumbnail = imagesPath.get(imagesPath.size() - 1);
-                PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
-                albumList.add(a);
-                Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
-                startActivity(intent);
+               // File[] imageFiles = loadImagesFromDirectory();
+                //if (imageFiles.length != 0) {
+                    //String thumbnail = imagesPath.get(imagesPath.size() - 1);
+                    //PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
+                    //albumList.add(a);
+                    Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
+                    startActivity(intent);
+               // }
+               // else {
+//                    Log.i(TAG, "Gallery is empty");
+//                    Toast.makeText(GridActivity.this, "No private pictures", Toast.LENGTH_LONG).show();
+              //  }
             }
         });
 
@@ -212,9 +217,9 @@ public class GridActivity extends AppCompatActivity {
             public void onClick(View v) {
                 networkStatus = checkNetworkStatus(GridActivity.this);
                 Log.d(TAG, "network status " + networkStatus);
-                //if (groupID.isEmpty()) {
-                //    Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
-               // } else {
+                if (groupID.isEmpty()) {
+                    Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
+                } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if(checkAndRequestPermissions()) {
                             takePictureIntent();
@@ -222,23 +227,13 @@ public class GridActivity extends AppCompatActivity {
                     } else {
                         takePictureIntent();
                     }
-              //  }
+                }
             }
         });
 
         buttonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-//                OkHttpClient okHttpClient = new
-//                ApiForBackend ap = new ApiForBackend();
-//                params.put("groupname", "Picnic");
-//                params.put("username", "Asad");
-//                params.put("timeToLive", "10");
-//                params.put("userToken", userToken);
-//                Request r = ap.executePost("/createGroup", params);
-
-
                 Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(settingIntent);
             }
@@ -258,6 +253,7 @@ public class GridActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        downloadImages.listenerStorage();
         ValueEventListener userGroupsListener = new ValueEventListener(){
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
@@ -284,6 +280,7 @@ public class GridActivity extends AppCompatActivity {
         };
         mUserGroupsListener = userGroupsListener;
         mUserGroupsReference.addListenerForSingleValueEvent(userGroupsListener);
+        //Log.d(TAG, "grid activity start " + mUserGroupsReference.toString());
     }
 
     @Override
@@ -470,7 +467,7 @@ public class GridActivity extends AppCompatActivity {
                     break;
             }
 
-            final String st = "pictures/qwerty/" + userID + "/" + imageFile.getName();
+            final String st = "pictures/" + groupID + "/" + userID + "/" + imageFile.getName();
             StorageReference imageReference = storageReference.child(st);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -541,14 +538,15 @@ public class GridActivity extends AppCompatActivity {
     }
 
 
-    public void loadImagesFromDirectory() {
-        ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
+    public File[] loadImagesFromDirectory(Context mContext) {
+        ContextWrapper contextWrapper = new ContextWrapper(mContext);
         File directory = contextWrapper.getDir("imagePrivate", Context.MODE_PRIVATE);
         File[] listFile = directory.listFiles();
 
-        for (File aListFile : listFile) {
-            imagesPath.add(aListFile.getAbsolutePath());
-        }
+//        for (File aListFile : listFile) {
+//            imagesPath.add(aListFile.getAbsolutePath());
+//        }
+        return listFile;
     }
 
     private int checkNetworkStatus(Context mContext) {
@@ -585,10 +583,10 @@ public class GridActivity extends AppCompatActivity {
         return resizedBitmap;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        albumList.clear();
-        imagesPath.clear();
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        albumList.clear();
+//        imagesPath.clear();
+//    }
 }

@@ -18,6 +18,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,9 @@ public class GalleryActivity extends AppCompatActivity {
 
     private GridView gridView;
     private AlbumAdapter adapter;
+    private GridActivity gridActivity;
+    private List<PhotoAlbum> albumList;
+    public static List<String> imagesPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,38 +43,55 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_view);
         gridView = (GridView) findViewById(R.id.grid_view);
 
-        adapter = new AlbumAdapter(GalleryActivity.this, GridActivity.albumList);
+        gridActivity = new GridActivity();
+        albumList = new ArrayList<PhotoAlbum>();
+        imagesPath = new ArrayList<String>();
+
+        File[] images = gridActivity.loadImagesFromDirectory(GalleryActivity.this);
+
+        adapter = new AlbumAdapter(GalleryActivity.this, albumList);
         gridView.setAdapter(adapter);
 
-        gridListener();
-    }
+        if (images.length == 0) {
+            Log.i(TAG, "No private pictures");
+            Toast.makeText(GalleryActivity.this, "No private pictures", Toast.LENGTH_LONG).show();
+        }
+        else {
+            for (File aListFile : images) {
+                imagesPath.add(aListFile.getAbsolutePath());
+            }
+            String thumbnail = imagesPath.get(imagesPath.size() - 1);
+            prepareAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
+        }
 
-    private void gridListener() {
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 //if (position == 0) {
-                    Toast.makeText(GalleryActivity.this, "" + position, Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
+                Toast.makeText(GalleryActivity.this, "" + position, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
                 //}
             }
         });
+    }
 
+    public void prepareAlbum(String name, String numOfPhotos, String thumbnail, int pic) {
+        PhotoAlbum a = new PhotoAlbum(name, numOfPhotos,thumbnail, pic);
+        albumList.add(a);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "GalleryActivity:onStart");
-        gridListener();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "GalleryActivity:onResume");
-        //startActivity(new Intent(GalleryActivity.this, GalleryActivity.class));
-        //this.onCreate(null);
-        gridListener();
+        //imagesPath.clear();
     }
 
 
@@ -83,8 +104,6 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        //GridActivity.albumList.clear();
-        //GridActivity.imagesPath.clear();
         Log.d(TAG, "GalleryActivity:onStop");
     }
 

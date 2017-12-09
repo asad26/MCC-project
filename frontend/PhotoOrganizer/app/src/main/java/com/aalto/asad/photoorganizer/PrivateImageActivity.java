@@ -41,7 +41,7 @@ public class PrivateImageActivity extends AppCompatActivity {
         privateGridView = (GridView) findViewById(R.id.private_grid_view);
         imageList = new ArrayList<String>();
 
-        ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GridActivity.imagesPath);
+        ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GalleryActivity.imagesPath);
         privateGridView.setAdapter(adapter);
 
         privateGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
