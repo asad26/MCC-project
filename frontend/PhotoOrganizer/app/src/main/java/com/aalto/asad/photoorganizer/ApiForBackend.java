@@ -17,8 +17,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.google.android.gms.internal.zzahg.runOnUiThread;
-
 /**
  * Created by Asad on 12/7/2017.
  */

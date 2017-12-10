@@ -15,6 +15,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.chrisbanes.photoview.PhotoView;
 import com.github.chrisbanes.photoview.PhotoViewAttacher;
 
 import java.io.File;
@@ -30,7 +31,7 @@ public class PrivateImageActivity extends AppCompatActivity {
     private static final String TAG = "MCC";
 
     private GridView privateGridView;
-    //private ImageAdapter adapter;
+    private ImageAdapter adapter;
     private ArrayList<String> imageList;
 
     @Override
@@ -41,12 +42,17 @@ public class PrivateImageActivity extends AppCompatActivity {
         privateGridView = (GridView) findViewById(R.id.private_grid_view);
         imageList = new ArrayList<String>();
 
-        ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GalleryActivity.privateImages);
+        final ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GalleryActivity.privateImages);
+
         privateGridView.setAdapter(adapter);
 
         privateGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
+                Intent intent = new Intent(PrivateImageActivity.this, PhotoViewActivity.class);
+                Bundle b = new Bundle();
+                b.putString("path", GalleryActivity.privateImages.get(position)); //Image path
+                intent.putExtras(b);
+                startActivity(intent);
             }
         });
     }

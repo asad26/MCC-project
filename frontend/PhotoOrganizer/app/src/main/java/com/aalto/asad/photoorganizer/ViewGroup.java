@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -50,6 +51,7 @@ public class ViewGroup extends AppCompatActivity {
 
     private TextView groupNameText;
     private TextView groupExpirationText;
+    private ListView groupMemberList;
     private Button addMemberButton;
     private Menu mOptionsMenu;
 
@@ -67,6 +69,7 @@ public class ViewGroup extends AppCompatActivity {
         addMemberButton = (Button) findViewById(R.id.addMemberButton);
         groupNameText = (TextView) findViewById(R.id.groupNameText);
         groupExpirationText =(TextView) findViewById(R.id.groupExpirationText);
+        groupMemberList = (ListView)findViewById(R.id.groupMemberListView);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         groupID = getIntent().getStringExtra("Group");
@@ -111,7 +114,6 @@ public class ViewGroup extends AppCompatActivity {
         mGroupReference.addListenerForSingleValueEvent(groupListener);
     }
 
-    //TODO: display group member names as well
     private void displayGroupInfo(Group group, ArrayList<GroupMember> members) {
         groupNameText.setText(group.getName());
         Date expiry = new Date(group.getExpiry() * 1000);
@@ -119,6 +121,12 @@ public class ViewGroup extends AppCompatActivity {
         if(group.getOwnerID().equals(mFirebaseUser.getUid())) {
             mOptionsMenu.findItem(R.id.menuLeaveGroup).setTitle("DELETE");
         }
+        ArrayList memberNames = new ArrayList<String>();
+        for(GroupMember member : members) {
+            memberNames.add(member.getName());
+        }
+        ArrayAdapter<String> itemsAdapter = new ArrayAdapter<String>(this, R.layout.group_member_listitem, memberNames);
+        groupMemberList.setAdapter(itemsAdapter);
     }
 
     @Override

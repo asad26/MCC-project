@@ -1,7 +1,6 @@
 import pyrebase
 from config.config import config
 import logging
-from createGroup import createQR, setUserTokenParams
 from checkAuth import user_is_authenticated
 
 def main(kwargs_dict):
@@ -25,6 +24,7 @@ def joinGroup(db, QRToken, userToken):
             return addToGroup(db, userID, groupID, inviterID)
 
 def addToGroup(db, userID, groupID, inviterID):
+    from createGroup import createQR, setUserTokenParams
     QR = createQR(groupID, userID)
     username = db.child("users").child(userID).child("userName").get().val()
     userData = {
@@ -45,6 +45,7 @@ def addToGroup(db, userID, groupID, inviterID):
     return QR
 
 def createNewQRForInviter(db, groupID, inviterID):
+    from createGroup import createQR
     qrtoken = createQR(groupID, inviterID)
     db.child("groups").child(groupID).child("members").child(inviterID).update({"QR":qrtoken})
 

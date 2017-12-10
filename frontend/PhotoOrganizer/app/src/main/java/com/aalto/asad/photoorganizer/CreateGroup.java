@@ -119,7 +119,6 @@ public class CreateGroup extends AppCompatActivity {
                                             String groupID = result.getString("groupID");
                                             Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
                                             viewGroupIntent.putExtra("Group", groupID);
-                                            viewGroupIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                             startActivity(viewGroupIntent);
                                             finish();
                                         } catch (JSONException e) {

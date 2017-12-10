@@ -130,7 +130,7 @@ public class DownloaderService extends IntentService {
                     File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+groupID+"_"+groupName+"/");
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("group_directory_name", groupID+"_"+groupName);
-                    Log.d(TAG, "Group directory name: " + groupID+"_"+groupName);
+                    Log.d(TAG, "Group directory: " + storageDir.getAbsolutePath());
                     editor.commit();
                     if(!storageDir.exists()) {
                         storageDir.mkdirs();
@@ -165,23 +165,26 @@ public class DownloaderService extends IntentService {
                 if (!groupID.isEmpty()) {
                     int networkStatus = checkNetworkStatus(getApplicationContext());
                     downloadQuality = determineDownloadQuality(networkStatus);
-                    final PicturesGroup picturesGroup = new PicturesGroup();
+                    final PicturesGroup picturesGroup = dataSnapshot.getValue(PicturesGroup.class);
+                    //Why was this like this?
+                    /**final PicturesGroup picturesGroup = new PicturesGroup();
                     picturesGroup.setContains_people(dataSnapshot.getValue(PicturesGroup.class).getContains_people());
                     picturesGroup.setPicture(dataSnapshot.getValue(PicturesGroup.class).getPicture());
                     picturesGroup.setPicture_640(dataSnapshot.getValue(PicturesGroup.class).getPicture_640());
                     picturesGroup.setPicture_1280(dataSnapshot.getValue(PicturesGroup.class).getPicture_1280());
-                    picturesGroup.setUser_id(dataSnapshot.getValue(PicturesGroup.class).getUser_id());
+                    picturesGroup.setUser_id(dataSnapshot.getValue(PicturesGroup.class).getUser_id());*/
                     String[] subs = picturesGroup.getPicture_640().split("/");
                     final String fileName = subs[subs.length-1];
-                    picturesGroup.setLocalUri(groupPictureDirectory+fileName);
-                    String containsPeople = picturesGroup.getContains_people().toString();
+                    final String localUri = groupPictureDirectory+fileName;
+                    picturesGroup.setLocalUri(localUri);
+                    final String containsPeople = picturesGroup.getContains_people().toString();
                     //Log.i("MCC", "onChildAdded " + picturesGroup.getUser_id());
 
                     mStorageReference.child(picturesGroup.getPicture_640()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             picLow = uri.toString();       // Low pic
-                            if (downloadQuality.equals("Low")) {
+                            if (downloadQuality.equals("Low") || downloadQuality.equals("")) {
                                 StorageReference pictureRef = mStorageReference.child(uri.toString());
                                     File localFile = new File(groupPictureDirectory, fileName);
                                     DownloadTask downloadTask = new DownloadTask();
@@ -222,6 +225,13 @@ public class DownloaderService extends IntentService {
                             User user = dataSnapshot.getValue(User.class);
                             userName = user.getUserName();
                             Log.i("MCC", "user Name " + userName);
+                            //Log.i("MCC", "before insertToRoomDatabase function");
+                            if (picturesGroup != null) {
+                                Log.i("MCC", "before insertToRoomDatabase function");
+                                insertToRoomDatabase(groupID, containsPeople, picturesGroup.getPicture(),
+                                        picturesGroup.getPicture_1280(), picturesGroup.getPicture_640(), userName, localUri);
+                            }
+                            readData(groupID);
                         }
 
                         @Override
@@ -230,12 +240,6 @@ public class DownloaderService extends IntentService {
                         }
                     });
 
-//                        if (picLow != null && picHigh != null && picFull != null && userName != null) {
-//                            Log.i("MCC", "before insertToRoomDatabase function");
-//                            insertToRoomDatabase(groupID, containsPeople, picFull, picHigh, picLow, userName);
-//                        }
-
-                    Log.i("MCC", "before insertToRoomDatabase function");
                     readData(groupID);
                 }
             }
@@ -255,7 +259,7 @@ public class DownloaderService extends IntentService {
         mPicturesReference.addChildEventListener(mPicEventListener);
     }
 
-    public void insertToRoomDatabase(final String groupID, final String containsPeople, final String picFull, final String picHigh, final String picLow, final String userName) {
+    public void insertToRoomDatabase(final String groupID, final String containsPeople, final String picFull, final String picHigh, final String picLow, final String userName, final String localUri) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -266,6 +270,7 @@ public class DownloaderService extends IntentService {
                 pictureInfo.setPictureHigh(picHigh);
                 pictureInfo.setPictureLow(picLow);
                 pictureInfo.setUserName(userName);
+                pictureInfo.setLocalUri(localUri);
                 appDatabase.pictureInfoDao().insertOnlySingleRecord(pictureInfo);
                 Log.d("MCC", "Data added to the database");
                 return null;

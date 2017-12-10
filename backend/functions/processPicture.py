@@ -42,6 +42,11 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
 
         # no need to verify the group, users only have permissions to their own folders
         # and the user group might have changed since the upload, so always publish to upload group
+        # however, the group may be deleted because the creator left the group
+        # using the expiry time as an indicator that the group exists
+
+        if (not fb_db.child("groups").child(picture_group_id).child("expiry").get().val()):
+            return "Group has been deleted"
 
         tmp_folder = tempfile.mkdtemp(prefix="mcc-fall-2017-g18")
         picture_local_path = os.path.join(tmp_folder, picture_name)
@@ -57,25 +62,37 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
                 im = im.rotate(degrees, expand=True)
         except Exception:
             pass
-        width, height = im.size
+        # assume landscape orientation
+        larger_dim, smaller_dim = im.size
+        is_portrait = False
+        if (smaller_dim > larger_dim):
+            tmp = larger_dim
+            larger_dim = smaller_dim
+            smaller_dim = tmp
+            is_portrait = True
 
         downscale_params = [{"width": 1280, "height": 960, "filename": picture_name},
                             {"width":  640, "height": 480, "filename": picture_name}]
         face_detection_picture_path = None
         for p in downscale_params:
-            if (width > p["width"] or height > p["height"]):
-                p["filename"] += "_" + str(p["width"])
-                im.thumbnail((p["width"], p["height"]), Image.ANTIALIAS)
-                p_local_path = os.path.join(tmp_folder, p["filename"])
-                with open(p_local_path, "a+b") as p_file:
-                    p_file.truncate()
-                    im.save(p_file, "JPEG")
-                    p_file.seek(0)
-                    fb_storage.child(picture_remote_folder + "/" + p["filename"]).put(p_file)
-                if not face_detection_picture_path:
-                    face_detection_picture_path = p_local_path
-                else:
-                    os.unlink(p_local_path)
+            if (larger_dim <= p["width"] and smaller_dim <= p["height"]):
+                continue
+            p["filename"] += "_" + str(p["width"])
+            if (is_portrait):
+                dims = (p["height"], p["width"])
+            else:
+                dims = (p["width"], p["height"])
+            im.thumbnail(dims, Image.ANTIALIAS)
+            p_local_path = os.path.join(tmp_folder, p["filename"])
+            with open(p_local_path, "a+b") as p_file:
+                p_file.truncate()
+                im.save(p_file, "JPEG")
+                p_file.seek(0)
+                fb_storage.child(picture_remote_folder + "/" + p["filename"]).put(p_file)
+            if not face_detection_picture_path:
+                face_detection_picture_path = p_local_path
+            else:
+                os.unlink(p_local_path)
         im.close()
         if not face_detection_picture_path:
             # if no downscaled pictures, use the original for face detection

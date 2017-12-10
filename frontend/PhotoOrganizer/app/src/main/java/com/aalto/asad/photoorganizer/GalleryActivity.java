@@ -117,7 +117,7 @@ public class GalleryActivity extends AppCompatActivity {
 
     public File[] loadGroupImagesFromDirectory(Context mContext, String directory) {
         ContextWrapper contextWrapper = new ContextWrapper(mContext);
-        File storageDirectory = contextWrapper.getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+directory+"/");
+        File storageDirectory = contextWrapper.getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+directory);
         Log.i(TAG, "GalleryActivity storage directory " + storageDirectory);
         File[] listFile = storageDirectory.listFiles();
         return listFile;
