@@ -15,6 +15,7 @@ public class PicturesGroup {
     private String picture_1280;
     private String picture_640;
     private String user_id;
+    private String localUri;
 
 
     public PicturesGroup() {
@@ -60,4 +61,8 @@ public class PicturesGroup {
     public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
+
+    public String getLocalUri() { return this.localUri; }
+
+    public void setLocalUri(String localUri) { this.localUri = localUri; }
 }

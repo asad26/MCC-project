@@ -280,6 +280,8 @@ public class GridActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("group_id", groupID);
                     editor.commit();
+                    Log.d(TAG, "Calling DownloaderService");
+                    DownloaderService.syncGroup(getApplicationContext(), groupID);
                     Log.i(TAG, "Checking user group, found: " + sharedPref.getString("group_id", ""));
                 }
             }

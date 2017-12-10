@@ -6,7 +6,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -15,7 +18,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,6 +31,7 @@
         <activity android:name=".ViewGroup" />
         <activity android:name=".JoinGroup" />
         <activity android:name=".AddUserActivity" />
+        <activity android:name=".PictureAlbumActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -37,22 +40,27 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.aalto.asad.photoorganizer.GridActivity" />
         </activity>
-        <activity android:name=".GalleryActivity" android:parentActivityName=".GridActivity" />
-        <activity android:name=".PrivateImageActivity" android:parentActivityName=".GalleryActivity" />
+        <activity
+            android:name=".GalleryActivity"
+            android:parentActivityName=".GridActivity" />
+        <activity
+            android:name=".PrivateImageActivity"
+            android:parentActivityName=".GalleryActivity" />
 
-        <!--<service-->
-            <!--android:name=".FBMessagingService">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.firebase.MESSAGING_EVENT"/>-->
-            <!--</intent-filter>-->
-        <!--</service>-->
+        <!-- <service -->
+        <!-- android:name=".FBMessagingService"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="com.google.firebase.MESSAGING_EVENT"/> -->
+        <!-- </intent-filter> -->
+        <!-- </service> -->
 
-        <!--<service-->
-            <!--android:name=".FBInstanceIDService">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>-->
-            <!--</intent-filter>-->
-        <!--</service>-->
+
+        <!-- <service -->
+        <!-- android:name=".FBInstanceIDService"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/> -->
+        <!-- </intent-filter> -->
+        <!-- </service> -->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -63,6 +71,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <service
+            android:name=".DownloaderService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
