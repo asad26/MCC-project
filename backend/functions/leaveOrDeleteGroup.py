@@ -14,6 +14,7 @@ def main(kwargs_dict):
     db = firebase.database()
     usertoken = kwargs_dict["userToken"]
     authenticated, userID = user_is_authenticated(usertoken)
+    fb_storage = firebase.storage()
     if authenticated:
         if not isInGroup(db, userID):
             return "Not in any group"
@@ -21,7 +22,7 @@ def main(kwargs_dict):
         groupID = db.child("users").child(userID).child("groupID").get().val()
         logging.debug("Found group: "+str(groupID))
         if isOwner(db, userID, groupID):
-            return deleteGroup(db, groupID)
+            return deleteGroup(db, fb_storage, groupID)
         else:
             return leaveGroup(db,userID, groupID)
 

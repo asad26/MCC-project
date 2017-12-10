@@ -1,10 +1,15 @@
 package com.aalto.asad.photoorganizer;
 
+import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.arch.persistence.room.Room;
+import android.arch.persistence.room.RoomDatabase;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -36,6 +41,9 @@ public class GalleryActivity extends AppCompatActivity {
     private List<PhotoAlbum> albumList;
     public static List<String> imagesPath;
 
+    private AppDatabase appDatabase;
+    private  DownloadImages downloadImages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +51,14 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_view);
         gridView = (GridView) findViewById(R.id.grid_view);
 
+        appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "sample-db").build();
+
+        //downloadImages = new DownloadImages(GalleryActivity.this);
+
+        //downloadImages.insertUser();
+        //insertUser();
+
+        //readData();
         gridActivity = new GridActivity();
         albumList = new ArrayList<PhotoAlbum>();
         imagesPath = new ArrayList<String>();

@@ -17,14 +17,20 @@ public interface PictureInfoDao {
     @Query("SELECT * FROM picturesInfo")
     List<PictureInfo> getAll();
 
-    @Query("SELECT * FROM picturesInfo WHERE groupId IN (:userIds)")
-    List<PictureInfo> loadAllByIds(int[] userIds);
+//    @Query("SELECT * FROM picturesInfo WHERE group_id IN (:userIds)")
+//    List<PictureInfo> loadAllByIds(int[] userIds);
 
     @Query("SELECT * FROM picturesInfo WHERE user_name LIKE :userName")
     PictureInfo findByName(String userName);
 
     @Query("SELECT * FROM picturesInfo WHERE user_name = :userName")
     List<PictureInfo> findAllByName(String userName);
+
+    @Query("SELECT * FROM picturesInfo WHERE group_id = :groupId")
+    List<PictureInfo> findAllByGroup(String groupId);
+
+    @Insert
+    void insertOnlySingleRecord(PictureInfo pictureInfo);
 
     @Insert
     void insertAll(PictureInfo... pictureInfos);

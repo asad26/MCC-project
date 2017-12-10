@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
  * Created by Asad on 12/8/2017.
  */
 
-@Database(entities = {PictureInfo.class}, version = 1,  exportSchema = false)
+@Database(entities = {PictureInfo.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase appInstance;
