@@ -184,9 +184,14 @@ public class GridActivity extends AppCompatActivity {
         imagesGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
+                /**Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
+                startActivity(intent);*/
+
+
+                Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
+                intent.putExtra("Group", groupID);
                 startActivity(intent);
-                
+
                 // File[] imageFiles = loadImagesFromDirectory();
                 //if (imageFiles.length != 0) {
                     //String thumbnail = imagesPath.get(imagesPath.size() - 1);
