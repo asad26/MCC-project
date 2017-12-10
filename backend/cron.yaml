@@ -1,0 +1,4 @@
+cron:
+- description: "Delete expired groups"
+  url: /deleteExpired
+  schedule: every 5 minutes
