@@ -20,6 +20,9 @@ public interface PictureInfoDao {
 //    @Query("SELECT * FROM picturesInfo WHERE group_id IN (:userIds)")
 //    List<PictureInfo> loadAllByIds(int[] userIds);
 
+    @Query("SELECT * FROM picturesInfo WHERE picture_full = :pictureFull")
+    PictureInfo searchByPicture(String pictureFull);
+
     @Query("SELECT * FROM picturesInfo WHERE user_name LIKE :userName")
     PictureInfo findByName(String userName);
 

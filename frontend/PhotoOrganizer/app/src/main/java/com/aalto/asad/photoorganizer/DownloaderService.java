@@ -102,8 +102,8 @@ public class DownloaderService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if ("SYNC_GROUP".equals(action)) {
-                Log.d(TAG, "Sync group action of the service intitated.");
                 final String group = intent.getStringExtra("Group");
+                Log.d(TAG, "Sync group action of the service intitated. GroupID " + group);
                 handleSyncGroup(group);
             } /** else if (ACTION_BAZ.equals(action)) {
                 final String param1 = intent.getStringExtra(EXTRA_PARAM1);
@@ -118,16 +118,20 @@ public class DownloaderService extends IntentService {
      * parameters.
      */
     private void handleSyncGroup(String group) {
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         appDatabase = AppDatabase.getInstance(getApplicationContext());
         if(!group.equals(groupID)) {
-            Log.d(TAG, "Group changed, resetting listener");
+            Log.d(TAG, "Group changed, resetting listener for GroupID " + groupID);
             DatabaseReference groupReference = FirebaseDatabase.getInstance().getReference().child("groups").child(group);
             groupReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     groupName = dataSnapshot.getValue(Group.class).getName();
                     File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+groupID+"_"+groupName+"/");
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("group_directory_name", groupID+"_"+groupName);
+                    Log.d(TAG, "Group directory name: " + groupID+"_"+groupName);
+                    editor.commit();
                     if(!storageDir.exists()) {
                         storageDir.mkdirs();
                     }
@@ -157,7 +161,7 @@ public class DownloaderService extends IntentService {
         mPicEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                //Log.i("MCC", "downloadImages:Group id " + groupID);
+                Log.i("MCC", "onChildAdded:Downloader Service " + groupID);
                 if (!groupID.isEmpty()) {
                     int networkStatus = checkNetworkStatus(getApplicationContext());
                     downloadQuality = determineDownloadQuality(networkStatus);
@@ -190,11 +194,10 @@ public class DownloaderService extends IntentService {
                         @Override
                         public void onSuccess(Uri uri) {
                             picHigh = uri.toString();       // High pic
-                            //Log.i("MCC", "onChildAdded (dlq is "+downloadQuality+") " + picHigh);
                             if (downloadQuality.equals("High")) {
                                 File localFile = new File(groupPictureDirectory, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
                                 DownloadTask downloadTask = new DownloadTask();
-                                downloadTask.execute(new DLparams(picLow, localFile));
+                                downloadTask.execute(new DLparams(picHigh, localFile));
                             }
                         }
                     });
@@ -206,7 +209,7 @@ public class DownloaderService extends IntentService {
                             if (downloadQuality.equals("Full")) {
                                 File localFile = new File(groupPictureDirectory, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
                                 DownloadTask downloadTask = new DownloadTask();
-                                downloadTask.execute(new DLparams(picLow, localFile));
+                                downloadTask.execute(new DLparams(picFull, localFile));
                             }
                         }
                     });
