@@ -101,10 +101,10 @@ public class GalleryActivity extends AppCompatActivity {
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                if (position == 0) {
+                //if (position == 0) {
                 Toast.makeText(GalleryActivity.this, "" + position, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
-                }
+                //}
             }
         });
     }
