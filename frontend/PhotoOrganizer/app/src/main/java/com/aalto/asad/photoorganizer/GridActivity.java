@@ -124,12 +124,11 @@ public class GridActivity extends AppCompatActivity {
 
     private File imageFile = null;
     private String userToken;
-    public static List<PhotoAlbum> albumList;
+
     private HashMap<String, String> params;
     ApiForBackend api;
-    public static List<String> imagesPath;
 
-    private DownloadImages downloadImages;
+
     /** This is hot to read the sync preferences
     //Get a reference to shared preferences
     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -164,15 +163,9 @@ public class GridActivity extends AppCompatActivity {
         mUserGroupsReference = FirebaseDatabase.getInstance().getReference().child("users").child(userID);
         storageReference = FirebaseStorage.getInstance().getReference();
 
-        //imagesPath = new ArrayList<String>();
-        //albumList = new ArrayList<PhotoAlbum>();
 
         params = new HashMap<String, String>();
         api = new ApiForBackend();
-
-//        downloadImages = new DownloadImages(GridActivity.this);
-//        downloadImages.listenerStorage();
-
         sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
 
         // Retrieve user ID token
@@ -193,7 +186,7 @@ public class GridActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
                 startActivity(intent);
-
+                
                 // File[] imageFiles = loadImagesFromDirectory();
                 //if (imageFiles.length != 0) {
                     //String thumbnail = imagesPath.get(imagesPath.size() - 1);
@@ -384,9 +377,10 @@ public class GridActivity extends AppCompatActivity {
             }
 
             if (imageFile != null) {
-                Log.i(TAG, "button camera Image file ");
+                //Log.i(TAG, "button camera Image file ");
                 Uri imageURI = FileProvider.getUriForFile(getApplicationContext(), "com.android.fileprovider", imageFile);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
+                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageURI);
+                //String mCurrentPhotoPath = imageFile.getAbsolutePath();
                 startActivityForResult(cameraIntent, CAPTURE_IMAGE);
             }
         }
@@ -415,20 +409,21 @@ public class GridActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(Bitmap... bitmaps) {
+            Bitmap tempBitmap = getResizedBitmap(bitmaps[0], 1000);
             BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext()).build();
-            Frame frame = new Frame.Builder().setBitmap(bitmaps[0]).build();
+            Frame frame = new Frame.Builder().setBitmap(tempBitmap).build();
             SparseArray<Barcode> barcode = barcodeDetector.detect(frame);
 
             if(!barcodeDetector.isOperational()){
                 Log.i(TAG, "Could not set up the detector!");
-                IntentFilter lowStorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
-                boolean hasLowStorage = registerReceiver(null, lowStorageFilter) != null;
-                if (hasLowStorage) {
-                    Log.i(TAG, "lessStorage: " + getString(R.string.low_storage_error));
-                }
+//                IntentFilter lowStorageFilter = new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW);
+//                boolean hasLowStorage = registerReceiver(null, lowStorageFilter) != null;
+//                if (hasLowStorage) {
+//                    Log.i(TAG, "lessStorage: " + getString(R.string.low_storage_error));
+//                }
             }
 
-            if (barcode.size() != 0) {
+            if (barcode.size() > 0) {
                 isBarcode = true;
                 Log.i(TAG, "This image has a barcode");
                 barcodeDetector.release();
@@ -562,7 +557,6 @@ public class GridActivity extends AppCompatActivity {
         }
     }
 
-
     public File[] loadImagesFromDirectory(Context mContext) {
         ContextWrapper contextWrapper = new ContextWrapper(mContext);
         File directory = contextWrapper.getDir("imagePrivate", Context.MODE_PRIVATE);
@@ -598,20 +592,25 @@ public class GridActivity extends AppCompatActivity {
         int height = bitmap.getHeight();
         float scaleWidth = ((float) newWidth) / width;
         float scaleHeight = ((float) newHeight) / height;
-
         Matrix matrix = new Matrix();
-
         matrix.postScale(scaleWidth, scaleHeight);
-
         Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, false);
         bitmap.recycle();
         return resizedBitmap;
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        albumList.clear();
-//        imagesPath.clear();
-//    }
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
 }

@@ -74,9 +74,6 @@ public class ViewGroup extends AppCompatActivity {
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         groupID = getIntent().getStringExtra("Group");
 
-        //downloadImages = new DownloadImages(ViewGroup.this);
-        //downloadImages.listenerStorage();
-
         addMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

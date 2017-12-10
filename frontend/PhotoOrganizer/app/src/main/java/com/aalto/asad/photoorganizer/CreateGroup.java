@@ -122,13 +122,17 @@ public class CreateGroup extends AppCompatActivity {
                                         try {
                                             JSONObject result = new JSONObject(responseString);
                                             final String groupID = result.getString("groupID");
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
-                                                    viewGroupIntent.putExtra("Group", groupID);
-                                                    startActivity(viewGroupIntent);
-                                                    finish();
+                                            mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                                                public void onComplete(@NonNull Task<GetTokenResult> task) {
+                                                    runOnUiThread(new Runnable() {
+                                                        @Override
+                                                        public void run () {
+                                                            Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                                                            viewGroupIntent.putExtra("Group", groupID);
+                                                            startActivity(viewGroupIntent);
+                                                            finish();
+                                                        }
+                                                    });
                                                 }
                                             });
 

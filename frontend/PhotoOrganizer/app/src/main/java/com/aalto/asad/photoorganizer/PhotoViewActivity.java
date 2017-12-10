@@ -22,8 +22,6 @@ import java.util.List;
 public class PhotoViewActivity extends AppCompatActivity {
     private static final String TAG = "MCC";
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

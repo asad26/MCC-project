@@ -18,6 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="barcode,face" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +34,7 @@
         <activity android:name=".ViewGroup" />
         <activity android:name=".JoinGroup" />
         <activity android:name=".AddUserActivity" />
-        <activity android:name=".PictureAlbumActivity" />
+        <!--<activity android:name=".PictureAlbumActivity" />-->
         <activity android:name=".PhotoViewActivity" />
         <activity
             android:name=".SettingsActivity"
@@ -60,7 +63,7 @@
 
         <service
             android:name=".DownloaderService"
-            android:exported="false"></service>
+            android:exported="false" />
     </application>
 
 </manifest>

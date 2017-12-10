@@ -3,12 +3,17 @@ package com.aalto.asad.photoorganizer;
 import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -38,11 +43,11 @@ public class GalleryActivity extends AppCompatActivity {
     private GridView gridView;
     private AlbumAdapter adapter;
     private GridActivity gridActivity;
-    private List<PhotoAlbum> albumList;
-    public static List<String> imagesPath;
+    private static List<PhotoAlbum> albumList;
+    public static List<String> privateImages;
+    public static List<String> groupImages;
 
-    private AppDatabase appDatabase;
-    private  DownloadImages downloadImages;
+    private SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,42 +56,55 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.gallery_view);
         gridView = (GridView) findViewById(R.id.grid_view);
 
-        appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "sample-db").build();
-
-        //downloadImages = new DownloadImages(GalleryActivity.this);
-
-        //downloadImages.insertUser();
-        //insertUser();
-
-        //readData();
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         gridActivity = new GridActivity();
         albumList = new ArrayList<PhotoAlbum>();
-        imagesPath = new ArrayList<String>();
-
-        File[] images = gridActivity.loadImagesFromDirectory(GalleryActivity.this);
+        privateImages = new ArrayList<String>();
+        groupImages = new ArrayList<String>();
 
         adapter = new AlbumAdapter(GalleryActivity.this, albumList);
         gridView.setAdapter(adapter);
 
+        String groupDirectory = sharedPref.getString("group_directory_name", "");
+        Log.i(TAG, "GalleryActivity " + groupDirectory);
+        if (!groupDirectory.isEmpty()) {
+            String[] subs = groupDirectory.split("_");
+            String albumName = subs[subs.length-1];
+            File[] groupImagesPath = loadGroupImagesFromDirectory(GalleryActivity.this, groupDirectory);
+            Log.i(TAG, "GalleryActivity length " + groupImagesPath.length);
+            if (groupImagesPath.length != 0) {
+                for (File aListFile : groupImagesPath) {
+                    groupImages.add(aListFile.getAbsolutePath());
+                }
+                String thumbnail = groupImages.get(groupImages.size() - 1);
+                prepareAlbum(albumName, String.valueOf(groupImages.size()), thumbnail, R.drawable.cloud);
+            } else {
+                Log.i(TAG, "No group pictures");
+                Toast.makeText(GalleryActivity.this, "No group pictures", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Log.i(TAG, "No group found!");
+        }
+
+        File[] images = gridActivity.loadImagesFromDirectory(GalleryActivity.this);
         if (images.length == 0) {
             Log.i(TAG, "No private pictures");
             Toast.makeText(GalleryActivity.this, "No private pictures", Toast.LENGTH_LONG).show();
         }
         else {
             for (File aListFile : images) {
-                imagesPath.add(aListFile.getAbsolutePath());
+                privateImages.add(aListFile.getAbsolutePath());
             }
-            String thumbnail = imagesPath.get(imagesPath.size() - 1);
-            prepareAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
+            String thumbnail = privateImages.get(privateImages.size() - 1);
+            prepareAlbum("Private", String.valueOf(privateImages.size()), thumbnail, R.drawable.not_cloud);
         }
-
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                //if (position == 0) {
+                if (position == 0) {
                 Toast.makeText(GalleryActivity.this, "" + position, Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
-                //}
+                }
             }
         });
     }
@@ -97,35 +115,43 @@ public class GalleryActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "GalleryActivity:onStart");
+    public File[] loadGroupImagesFromDirectory(Context mContext, String directory) {
+        ContextWrapper contextWrapper = new ContextWrapper(mContext);
+        File storageDirectory = contextWrapper.getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+directory);
+        Log.i(TAG, "GalleryActivity storage directory " + storageDirectory);
+        File[] listFile = storageDirectory.listFiles();
+        return listFile;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "GalleryActivity:onResume");
-        //imagesPath.clear();
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "GalleryActivity:onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "GalleryActivity:onStop");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "GalleryActivity:onDestroy");
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        Log.d(TAG, "GalleryActivity:onStart");
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.d(TAG, "GalleryActivity:onResume");
+//        //imagesPath.clear();
+//    }
+//
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.d(TAG, "GalleryActivity:onPause");
+//    }
+//
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        Log.d(TAG, "GalleryActivity:onStop");
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        Log.d(TAG, "GalleryActivity:onDestroy");
+//    }
 }

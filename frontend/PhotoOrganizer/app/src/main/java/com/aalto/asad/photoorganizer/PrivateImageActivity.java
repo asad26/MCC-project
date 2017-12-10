@@ -42,14 +42,15 @@ public class PrivateImageActivity extends AppCompatActivity {
         privateGridView = (GridView) findViewById(R.id.private_grid_view);
         imageList = new ArrayList<String>();
 
-        final ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GalleryActivity.imagesPath);
+        final ImageAdapter adapter = new ImageAdapter(PrivateImageActivity.this, GalleryActivity.privateImages);
+
         privateGridView.setAdapter(adapter);
 
         privateGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Intent intent = new Intent(PrivateImageActivity.this, PhotoViewActivity.class);
                 Bundle b = new Bundle();
-                b.putString("path", GalleryActivity.imagesPath.get(position)); //Image path
+                b.putString("path", GalleryActivity.privateImages.get(position)); //Image path
                 intent.putExtras(b);
                 startActivity(intent);
             }
