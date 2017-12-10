@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a40a0f860bc4d9840efdcec315a52bd5",
+    "identityHash": "7307b927daf0919603818004ab8e333c",
     "entities": [
       {
         "tableName": "picturesInfo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `group_id` TEXT, `contains_people` TEXT, `picture_full` TEXT, `picture_high` TEXT, `picture_low` TEXT, `user_name` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `group_id` TEXT, `contains_people` TEXT, `picture_full` TEXT, `picture_high` TEXT, `picture_low` TEXT, `user_name` TEXT, `local_uri` TEXT)",
         "fields": [
           {
             "fieldPath": "rowId",
@@ -49,6 +49,12 @@
             "columnName": "user_name",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "localUri",
+            "columnName": "local_uri",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -63,7 +69,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a40a0f860bc4d9840efdcec315a52bd5\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7307b927daf0919603818004ab8e333c\")"
     ]
   }
 }

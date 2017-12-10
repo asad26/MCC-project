@@ -32,6 +32,9 @@ public class PictureInfo {
     @ColumnInfo(name = "user_name")
     private String userName;
 
+    @ColumnInfo(name = "local_uri")
+    private String localUri;
+
     public int getRowId() {
         return rowId;
     }
@@ -82,7 +85,15 @@ public class PictureInfo {
         this.userName = userName;
     }
 
-    public String getUserName() {
-        return this.userName;
+    public String getUserName() { return this.userName; }
+
+    public String getLocalUri() {
+        return this.localUri;
     }
+
+    public void setLocalUri (String localUri) {
+        this.localUri = localUri;
+    }
+
+
 }

@@ -235,13 +235,7 @@ public class GridActivity extends AppCompatActivity {
                 if (groupID.isEmpty()) {
                     Toast.makeText(GridActivity.this, "Join or create a group first!", Toast.LENGTH_LONG).show();
                 } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if(checkAndRequestPermissions()) {
-                            takePictureIntent();
-                        }
-                    } else {
-                        takePictureIntent();
-                    }
+                    takePictureIntent();
                 }
             }
         });
@@ -268,6 +262,9 @@ public class GridActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkAndRequestPermissions();
+        }
         ValueEventListener userGroupsListener = new ValueEventListener(){
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
@@ -285,8 +282,10 @@ public class GridActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("group_id", groupID);
                     editor.commit();
-                    Log.d(TAG, "Calling DownloaderService");
-                    DownloaderService.syncGroup(getApplicationContext(), groupID);
+                    if(checkAndRequestPermissions()) {
+                        Log.d(TAG, "Calling DownloaderService");
+                        DownloaderService.syncGroup(getApplicationContext(), groupID);
+                    }
                     Log.i(TAG, "Checking user group, found: " + sharedPref.getString("group_id", ""));
                 }
             }
@@ -357,7 +356,11 @@ public class GridActivity extends AppCompatActivity {
 
                     Log.i(TAG, "Camera and Storage Permissions granted");
                     Toast.makeText(this, "Camera and Storage Permissions granted", Toast.LENGTH_LONG).show();
-                    takePictureIntent();
+                    if (!groupID.equals("")) {
+                        Log.d(TAG, "Calling DownloaderService");
+                        DownloaderService.syncGroup(getApplicationContext(), groupID);
+                    }
+                    //takePictureIntent();
 
                 } else {
                     Log.i(TAG, "Permissions are not granted. ");
