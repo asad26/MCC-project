@@ -133,6 +133,10 @@ public class DownloaderService extends IntentService {
                     }
                     Log.d(TAG, "storageDir: "+storageDir.getPath());
                     groupPictureDirectory = storageDir.getPath();
+                    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("picture_directory_"+groupID, groupPictureDirectory);
+                    editor.commit();
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
@@ -157,10 +161,11 @@ public class DownloaderService extends IntentService {
         mPicEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                //Log.i("MCC", "downloadImages:Group id " + groupID);
+                Log.i("MCC", "A child was added:Group id " + groupID);
                 if (!groupID.isEmpty()) {
                     int networkStatus = checkNetworkStatus(getApplicationContext());
                     downloadQuality = determineDownloadQuality(networkStatus);
+                    Log.d("MCC", "Download quality set to: "+downloadQuality);
                     final PicturesGroup picturesGroup = dataSnapshot.getValue(PicturesGroup.class);
                     //Why was this like this?
                     /**final PicturesGroup picturesGroup = new PicturesGroup();
@@ -171,7 +176,7 @@ public class DownloaderService extends IntentService {
                     picturesGroup.setUser_id(dataSnapshot.getValue(PicturesGroup.class).getUser_id());*/
                     String[] subs = picturesGroup.getPicture_640().split("/");
                     final String fileName = subs[subs.length-1];
-                    final String localUri = groupPictureDirectory+fileName;
+                    final String localUri = fileName;
                     picturesGroup.setLocalUri(localUri);
                     final String containsPeople = picturesGroup.getContains_people().toString();
                     //Log.i("MCC", "onChildAdded " + picturesGroup.getUser_id());
@@ -228,7 +233,7 @@ public class DownloaderService extends IntentService {
                                 insertToRoomDatabase(groupID, containsPeople, picturesGroup.getPicture(),
                                         picturesGroup.getPicture_1280(), picturesGroup.getPicture_640(), userName, localUri);
                             }
-                            readData(groupID);
+                            //readData(groupID);
                         }
 
                         @Override
@@ -281,10 +286,10 @@ public class DownloaderService extends IntentService {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                List<PictureInfo> pictureInfoList = appDatabase.pictureInfoDao().getAll();
+                List<PictureInfo> pictureInfoList = appDatabase.pictureInfoDao().findAllByGroup(groupID);
                 for (int i = 0; i < pictureInfoList.size();i++) {
                     PictureInfo p = pictureInfoList.get(i);
-                    Log.i("MCC", "in Read: room database " + p.getPictureFull());
+                    Log.i("MCC", "in Read: room database " + p.getLocalUri());
                 }
                 return null;
             }
@@ -329,4 +334,5 @@ public class DownloaderService extends IntentService {
             return "";
         }
     }
+
 }
