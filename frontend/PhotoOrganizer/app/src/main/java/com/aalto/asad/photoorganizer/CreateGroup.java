@@ -53,6 +53,8 @@ public class CreateGroup extends AppCompatActivity {
     private FirebaseUser mFirebaseUser;
     //private DatabaseReference mFirebaseDatabaseReference;
 
+    //private DownloadImages downloadImages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +67,9 @@ public class CreateGroup extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         //mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
+//        downloadImages = new DownloadImages(CreateGroup.this);
+//        downloadImages.listenerStorage();
 
         //TODO: Handling of the response received from backend
         createButton.setOnClickListener(new View.OnClickListener() {

@@ -58,6 +58,7 @@ public class ViewGroup extends AppCompatActivity {
     private String groupID;
     private Group group;
 
+    private DownloadImages downloadImages;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,9 @@ public class ViewGroup extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         groupID = getIntent().getStringExtra("Group");
+
+        downloadImages = new DownloadImages(ViewGroup.this);
+        downloadImages.listenerStorage();
 
         addMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -10,7 +10,7 @@ import android.arch.persistence.room.PrimaryKey;
 
 public class PicturesGroup {
 
-    private String contains_people;
+    private Boolean contains_people;
     private String picture;
     private String picture_1280;
     private String picture_640;
@@ -21,50 +21,43 @@ public class PicturesGroup {
 
     }
 
-    public PicturesGroup (String containsPeople, String pictureFull, String pictureHigh, String pictureLow, String userId) {
-        this.contains_people = containsPeople;
-        this.picture = pictureFull;
-        this.picture_1280 = pictureHigh;
-        this.picture_640 = pictureLow;
-        this.user_id = userId;
+    public Boolean getContains_people() {
+        return contains_people;
     }
 
-//    public void setUserId (String userId) {
-//        this.userId = userId;
-//    }
-
-    public String getUserId() {
-        return this.user_id;
+    public void setContains_people(Boolean contains_people) {
+        this.contains_people = contains_people;
     }
 
-//    public void setContainsPeople(String containsPeople) {
-//        this.containsPeople = containsPeople;
-//    }
-
-    public String getContainsPeople() {
-        return this.contains_people;
+    public String getPicture() {
+        return picture;
     }
 
-//    public void setPictureFull (String pictureFull) {
-//        this.pictureFull = pictureFull;
-//    }
-
-    public String getPictureFull() {
-        return this.picture;
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
-//    public void setPictureHigh (String pictureHigh) {
-//        this.pictureHigh = pictureHigh;
-//    }
-
-    public String getPictureHigh() { return this.picture_1280; }
-
-//    public void setPictureLow (String pictureLow) {
-//        this.pictureLow = pictureLow;
-//    }
-
-    public String getPictureLow() {
-        return this.picture_640;
+    public String getPicture_1280() {
+        return picture_1280;
     }
 
+    public void setPicture_1280(String picture_1280) {
+        this.picture_1280 = picture_1280;
+    }
+
+    public String getPicture_640() {
+        return picture_640;
+    }
+
+    public void setPicture_640(String picture_640) {
+        this.picture_640 = picture_640;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
 }

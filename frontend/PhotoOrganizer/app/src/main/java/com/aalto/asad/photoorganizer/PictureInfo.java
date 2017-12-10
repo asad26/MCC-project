@@ -11,8 +11,11 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity(tableName = "picturesInfo")
 public class PictureInfo {
 
-    @PrimaryKey
-    private int groupId;
+    @PrimaryKey(autoGenerate = true)
+    private int rowId;
+
+    @ColumnInfo(name = "group_id")
+    private String groupId;
 
     @ColumnInfo(name = "contains_people")
     private String containsPeople;
@@ -29,12 +32,19 @@ public class PictureInfo {
     @ColumnInfo(name = "user_name")
     private String userName;
 
+    public int getRowId() {
+        return rowId;
+    }
 
-    public void setGroupId (int groupId) {
+    public void setRowId(int rowId) {
+        this.rowId = rowId;
+    }
+
+    public void setGroupId (String groupId) {
         this.groupId = groupId;
     }
 
-    public int getGroupId() {
+    public String getGroupId() {
         return this.groupId;
     }
 

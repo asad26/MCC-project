@@ -163,7 +163,8 @@ public class GridActivity extends AppCompatActivity {
         params = new HashMap<String, String>();
         api = new ApiForBackend();
 
-        downloadImages = new DownloadImages(GridActivity.this);
+//        downloadImages = new DownloadImages(GridActivity.this);
+//        downloadImages.listenerStorage();
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
 
@@ -253,18 +254,20 @@ public class GridActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        downloadImages.listenerStorage();
         ValueEventListener userGroupsListener = new ValueEventListener(){
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
                 if((!dataSnapshot.hasChild("groupID")) || dataSnapshot.child("groupID") == null) {
                     User user = dataSnapshot.getValue(User.class);
                     Log.i(TAG, "Checking user group, none found");
                     groupID = "";
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("group_id", "");
+                    editor.commit();
                 } else {
                     User user = dataSnapshot.getValue(User.class);
                     groupID = user.getGroupID();
-                    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(GridActivity.this);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("group_id", groupID);
                     editor.commit();
@@ -549,7 +552,7 @@ public class GridActivity extends AppCompatActivity {
         return listFile;
     }
 
-    private int checkNetworkStatus(Context mContext) {
+    public int checkNetworkStatus(Context mContext) {
 
         int networkStatus;
         final ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
