@@ -139,7 +139,7 @@ public class DownloaderService extends IntentService {
                     groupPictureDirectory = storageDir.getPath();
                     //SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                     //SharedPreferences.Editor editor = sharedPref.edit();
-                    //editor = sharedPref.edit();
+
                     editor.putString("picture_directory_"+groupID, groupPictureDirectory);
                     editor.commit();
                 }
