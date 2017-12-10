@@ -3,7 +3,7 @@ cachetools==2.0.1
 certifi==2017.11.5
 chardet==3.0.4
 dill==0.2.7.1
-firebase-admin==2.5.0
+firebase-admin==2.6.0
 future==0.16.0
 gcloud==0.17.0
 google-api-core==0.1.1
