@@ -105,9 +105,7 @@ public class GalleryActivity extends AppCompatActivity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 String albumID = albumList.get(position).getID();
-                Log.d(TAG, albumID);
                 if(albumID.equals("0")){
-                    Log.d(TAG, albumID);
                     startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
                 }else{
                     Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
