@@ -17,7 +17,7 @@ def main(kwargs_dict):
     db = firebase.database()
     return create_group(db, **kwargs_dict)
 
-def create_group(db, groupname, username, timeToLive, userToken):
+def create_group(db, groupname, timeToLive, userToken):
     authenticated, uid = user_is_authenticated(userToken)
     if authenticated:
         if joinGroup.isInGroup(db, uid):

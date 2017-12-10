@@ -90,7 +90,6 @@ public class CreateGroup extends AppCompatActivity {
                             OkHttpClient okHttpClient = new OkHttpClient();
                             FormBody.Builder formBuilder = new FormBody.Builder();
                             formBuilder.add("groupname", name);
-                            formBuilder.add("username", mFirebaseUser.getDisplayName());
                             formBuilder.add("timeToLive", duration);
                             formBuilder.add("userToken", userToken);
                             RequestBody formBody = formBuilder.build();
@@ -105,8 +104,13 @@ public class CreateGroup extends AppCompatActivity {
 
                                 @Override
                                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                                    createGroupProgressBar.setVisibility(View.INVISIBLE);
-                                    Toast.makeText(CreateGroup.this, "Unable to create group, try again later.", Toast.LENGTH_LONG).show();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            createGroupProgressBar.setVisibility(View.INVISIBLE);
+                                            Toast.makeText(CreateGroup.this, "Unable to create group, try again later.", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                     Log.i(TAG, "executePost:failure " + e.getMessage());
                                 }
 
@@ -114,17 +118,29 @@ public class CreateGroup extends AppCompatActivity {
                                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                                     if (response.isSuccessful()) {
                                         Log.i(TAG, "executePost:ResponseSuccess " + response);
+                                        String responseString = response.body().string();
                                         try {
-                                            JSONObject result = new JSONObject(response.body().string());
-                                            String groupID = result.getString("groupID");
-                                            Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
-                                            viewGroupIntent.putExtra("Group", groupID);
-                                            startActivity(viewGroupIntent);
-                                            finish();
+                                            JSONObject result = new JSONObject(responseString);
+                                            final String groupID = result.getString("groupID");
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                                                    viewGroupIntent.putExtra("Group", groupID);
+                                                    startActivity(viewGroupIntent);
+                                                    finish();
+                                                }
+                                            });
+
                                         } catch (JSONException e) {
-                                            createGroupProgressBar.setVisibility(View.INVISIBLE);
-                                            Toast.makeText(CreateGroup.this, "Unexpected response from server.", Toast.LENGTH_LONG).show();
-                                            Log.i(TAG, "Couldn't parse the response");
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    createGroupProgressBar.setVisibility(View.INVISIBLE);
+                                                    Toast.makeText(CreateGroup.this, "Unexpected response from server.", Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                            Log.i(TAG, "Couldn't parse the response " + responseString);
                                             return;
                                         }
                                     } else {
