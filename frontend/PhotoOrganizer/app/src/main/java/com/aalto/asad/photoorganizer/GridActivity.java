@@ -407,7 +407,7 @@ public class GridActivity extends AppCompatActivity {
 
         @Override
         protected Bitmap doInBackground(Bitmap... bitmaps) {
-            Bitmap tempBitmap = getResizedBitmap(bitmaps[0], 200);
+            Bitmap tempBitmap = getResizedBitmap(bitmaps[0], 1000);
             BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getApplicationContext()).build();
             Frame frame = new Frame.Builder().setBitmap(tempBitmap).build();
             SparseArray<Barcode> barcode = barcodeDetector.detect(frame);
