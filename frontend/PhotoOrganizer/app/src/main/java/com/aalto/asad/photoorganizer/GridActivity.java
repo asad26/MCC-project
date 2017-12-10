@@ -188,8 +188,17 @@ public class GridActivity extends AppCompatActivity {
                     //String thumbnail = imagesPath.get(imagesPath.size() - 1);
                     //PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
                     //albumList.add(a);
-                    Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
-                    startActivity(intent);
+                    /*
+                loadImagesFromDirectory();
+                String thumbnail = imagesPath.get(imagesPath.size() - 1);
+                PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
+                albumList.add(a);
+                Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
+                startActivity(intent); */
+
+                Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
+                intent.putExtra("Group", groupID);
+                startActivity(intent);
                // }
                // else {
 //                    Log.i(TAG, "Gallery is empty");

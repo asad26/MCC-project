@@ -29,6 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ public class ViewGroup extends AppCompatActivity {
     private TextView groupNameText;
     private TextView groupExpirationText;
     private Button addMemberButton;
+    private Menu mOptionsMenu;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
@@ -93,7 +95,11 @@ public class ViewGroup extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot){
                 group = dataSnapshot.getValue(Group.class);
-                displayGroupInfo(group);
+                ArrayList<GroupMember> members = new ArrayList<GroupMember>();
+                for (DataSnapshot child : dataSnapshot.child("members").getChildren()){
+                    members.add(child.getValue(GroupMember.class));
+                }
+                displayGroupInfo(group, members);
             }
 
             @Override
@@ -107,16 +113,20 @@ public class ViewGroup extends AppCompatActivity {
     }
 
     //TODO: display group member names as well
-    private void displayGroupInfo(Group group) {
+    private void displayGroupInfo(Group group, ArrayList<GroupMember> members) {
         groupNameText.setText(group.getName());
         Date expiry = new Date(group.getExpiry() * 1000);
         groupExpirationText.setText(String.valueOf(expiry.toString()));
+        if(group.getOwnerID().equals(mFirebaseUser.getUid())) {
+            mOptionsMenu.findItem(R.id.menuLeaveGroup).setTitle("DELETE");
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.view_group_menu, menu);
+        mOptionsMenu = menu;
         return true;
     }
 
