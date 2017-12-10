@@ -1,7 +1,6 @@
 import pyrebase
 from config.config import config
 import logging
-from createGroup import createQR, setUserTokenParams
 from checkAuth import user_is_authenticated
 
 def main(kwargs_dict):
@@ -25,6 +24,7 @@ def joinGroup(db, QRToken, userToken):
             return addToGroup(db, userID, groupID, inviterID)
 
 def addToGroup(db, userID, groupID, inviterID):
+    from createGroup import createQR
     QR = createQR(groupID, userID)
     username = db.child("users").child(userID).child("userName").get().val()
     userData = {
@@ -38,13 +38,11 @@ def addToGroup(db, userID, groupID, inviterID):
     db.child("groups").child(groupID).child("members").child(userID).set(userData)
     logging.debug("Pushing group id to user table")
     db.child("users").child(userID).update({"groupID":groupID})
-    # set group id and expiry time in user token for Firebase Storage rules
-    expiry = db.child("groups").child(groupID).child("expiry").get().val()
-    setUserTokenParams(userID, groupID, expiry)
     createNewQRForInviter(db, groupID, inviterID)
     return QR
 
 def createNewQRForInviter(db, groupID, inviterID):
+    from createGroup import createQR
     qrtoken = createQR(groupID, inviterID)
     db.child("groups").child(groupID).child("members").child(inviterID).update({"QR":qrtoken})
 

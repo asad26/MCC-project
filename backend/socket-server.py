@@ -39,6 +39,8 @@ print()
 @route('/<path>',method = 'POST')
 def process(path):
     function = path
+    if function=='deleteExpired':
+        return "deleteExpire only available with GET"
     if function in functions:
         logging.debug("Server received request: "+path)
         try:
@@ -57,6 +59,9 @@ def process(path):
 
 @route('/deleteExpired',method = 'GET')
 def deleteExpired():
+    # check the GET request is from gcloud
+    if('X-Appengine-Cron' not in request.headers or request.headers['X-Appengine-Cron']!='true'):
+        return "GET request was not from gcloud, not accepted"
     function = 'deleteExpired'
     if function in functions:
         logging.debug("Server received request to delete expired groups")
