@@ -42,6 +42,11 @@ def process_picture(fb_db, fb_storage, picture_path, userToken):
 
         # no need to verify the group, users only have permissions to their own folders
         # and the user group might have changed since the upload, so always publish to upload group
+        # however, the group may be deleted because the creator left the group
+        # using the expiry time as an indicator that the group exists
+
+        if (not fb_db.child("groups").child(picture_group_id).child("expiry").get().val()):
+            return "Group has been deleted"
 
         tmp_folder = tempfile.mkdtemp(prefix="mcc-fall-2017-g18")
         picture_local_path = os.path.join(tmp_folder, picture_name)
