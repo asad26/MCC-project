@@ -117,10 +117,10 @@ public class GridActivity extends AppCompatActivity {
 
     private File imageFile = null;
     private String userToken;
-    //public static List<PhotoAlbum> albumList;
+    public static List<PhotoAlbum> albumList;
     private HashMap<String, String> params;
     ApiForBackend api;
-    //public static List<String> imagesPath;
+    public static List<String> imagesPath;
 
     private DownloadImages downloadImages;
     /** This is hot to read the sync preferences
@@ -184,22 +184,27 @@ public class GridActivity extends AppCompatActivity {
         imagesGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // File[] imageFiles = loadImagesFromDirectory();
+                Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
+                startActivity(intent);
+
+                /** Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
+                 intent.putExtra("Group", groupID);
+                 startActivity(intent);*/
+
+                // File[] imageFiles = loadImagesFromDirectory();
                 //if (imageFiles.length != 0) {
                     //String thumbnail = imagesPath.get(imagesPath.size() - 1);
                     //PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
                     //albumList.add(a);
-                    /*
-                loadImagesFromDirectory();
+
+                /**
+                loadImagesFromDirectory(getApplicationContext());
                 String thumbnail = imagesPath.get(imagesPath.size() - 1);
                 PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
                 albumList.add(a);
                 Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
                 startActivity(intent); */
 
-                Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
-                intent.putExtra("Group", groupID);
-                startActivity(intent);
                // }
                // else {
 //                    Log.i(TAG, "Gallery is empty");

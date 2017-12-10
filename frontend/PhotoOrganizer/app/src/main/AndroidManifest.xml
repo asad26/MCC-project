@@ -47,21 +47,6 @@
             android:name=".PrivateImageActivity"
             android:parentActivityName=".GalleryActivity" />
 
-        <!-- <service -->
-        <!-- android:name=".FBMessagingService"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="com.google.firebase.MESSAGING_EVENT"/> -->
-        <!-- </intent-filter> -->
-        <!-- </service> -->
-
-
-        <!-- <service -->
-        <!-- android:name=".FBInstanceIDService"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/> -->
-        <!-- </intent-filter> -->
-        <!-- </service> -->
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.android.fileprovider"

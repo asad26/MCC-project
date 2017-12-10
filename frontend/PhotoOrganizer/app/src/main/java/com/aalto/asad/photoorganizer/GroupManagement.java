@@ -61,6 +61,7 @@ public class GroupManagement extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(GroupManagement.this, CreateGroup.class);
                 startActivity(intent);
+                finish();
             }
         });
         joinGroupButton.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +121,6 @@ public class GroupManagement extends AppCompatActivity {
                                         Log.i(TAG, "executePost:ResponseSuccess " + res);
                                         Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
                                         viewGroupIntent.putExtra("Group", groupID);
-                                        viewGroupIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                         startActivity(viewGroupIntent);
                                         finish();
                                     } else {
