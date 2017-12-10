@@ -5,7 +5,7 @@ Files included in this folder:
 
 .gitignore
 
-* added to ignore virtualenv-folder and pycache etc.
+* added to ignore virtualenv-folder, logs and pycache etc.
 
 requirements.txt
 
@@ -20,14 +20,21 @@ functions/createGroup.py
 
 * includes a function to create group with given arguments
 
-socket-server.py
+functions/deleteExpired.py
 
-* runs a local server using bottle-library
-* sending a HTTP POST request to /<path> runs <path>.py
+* function for checking and deleting expired groups and their pictures
 
-server-test.py
+functions/joinGroup.py
 
-* an example of a HTTP POST request done by client
+* function for joining a group with a given qr-token
+
+functions/leaveOrDeleteGroup.py
+
+* function for leaving a group if user is a member of group and deleting if the user is group owner
+
+functions/processPicture.py
+
+* function for processing a picture (checking for faces, re-scaling etc.)
 
 functions/config/mcc-fall-2017-g18-firebase-adminsdk-o1mru-8ac45de714.json
 
@@ -36,3 +43,13 @@ functions/config/mcc-fall-2017-g18-firebase-adminsdk-o1mru-8ac45de714.json
 functions/config/config.py
 
 * includes apiKey, authDomain, databaseURL, storageBucket and ServiceAccount -file data
+
+socket-server.py
+
+* runs a local server using bottle-library
+* sending a HTTP POST request to /<path> runs function matching the <path>
+* deleteExpired also accepts HTTP GET requests, to accept Google Cloud AppEngine cron job calls
+
+tests/
+
+* contains a test for each of the functions described above
