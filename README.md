@@ -8,26 +8,26 @@ been added so that the client can create it during account creation. After
 this the data cannot be changed. The rest of the writes happen from the
 backend using a service account, which is not covered by these rules.
 
-{
-  "rules": {
-    "groups": {
-      "$groupID": {
-        ".read": "root.child('users').child(auth.uid).child('groupID').val() == $groupID
-                  && 1000*data.child('expiry').val() + 10*60*1000 > now",
-        ".write": "false"
-      }
-    },
-    "users":{
-      "$userID": {
-        ".read": "$userID == auth.uid ||
-                  root.child('users').child(auth.uid).child('groupID').val() ==
-                  root.child('users').child($userID).child('groupID').val()",
-        ".write": "$userID == auth.uid
-                   && !data.exists()"
+    {
+      "rules": {
+        "groups": {
+          "$groupID": {
+            ".read": "root.child('users').child(auth.uid).child('groupID').val() == $groupID
+                      && 1000*data.child('expiry').val() + 10*60*1000 > now",
+            ".write": "false"
+          }
+        },
+        "users":{
+          "$userID": {
+            ".read": "$userID == auth.uid ||
+                      root.child('users').child(auth.uid).child('groupID').val() ==
+                      root.child('users').child($userID).child('groupID').val()",
+            ".write": "$userID == auth.uid
+                       && !data.exists()"
+          }
+        }
       }
     }
-  }
-}
 
 ### Firebase Storage
 Users upload the pictures directly to Firebase storage. This was deemed to
@@ -43,19 +43,19 @@ In that case the app has to proactively prevent the upload, if we want
 to save user bandwidth. Otherwise the server running in app engine will
 just not process the file after the upload is complete.
 
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /pictures/{groupID}/{userID}/{imageID} {
-      allow read: if request.auth.token.groupID == groupID
-      allow write: if request.auth.token.groupID == groupID
-                   && request.auth.uid == userID
-                   && resource == null
-                   && request.resource != null
-                   && int(1000*float(request.auth.token.groupExpiry)) > request.time.toMillis()
-                   && request.resource.size < 100 * 1000 * 1000;
+    service firebase.storage {
+      match /b/{bucket}/o {
+        match /pictures/{groupID}/{userID}/{imageID} {
+          allow read: if request.auth.token.groupID == groupID
+          allow write: if request.auth.token.groupID == groupID
+                       && request.auth.uid == userID
+                       && resource == null
+                       && request.resource != null
+                       && int(1000*float(request.auth.token.groupExpiry)) > request.time.toMillis()
+                       && request.resource.size < 100 * 1000 * 1000;
+        }
+        match /{allPaths=**} {
+          allow read, write: if false;
+        }
+      }
     }
-    match /{allPaths=**} {
-      allow read, write: if false;
-    }
-  }
-}
