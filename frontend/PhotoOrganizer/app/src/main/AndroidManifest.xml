@@ -34,7 +34,7 @@
         <activity android:name=".ViewGroup" />
         <activity android:name=".JoinGroup" />
         <activity android:name=".AddUserActivity" />
-        <!--<activity android:name=".PictureAlbumActivity" />-->
+        <activity android:name=".PictureAlbumActivity" />
         <activity android:name=".PhotoViewActivity" />
         <activity
             android:name=".SettingsActivity"
