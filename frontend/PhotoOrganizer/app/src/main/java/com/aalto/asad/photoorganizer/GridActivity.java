@@ -224,6 +224,7 @@ public class GridActivity extends AppCompatActivity {
                 Log.d(TAG, "signOut:success");
                 Intent intent = new Intent(GridActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }
