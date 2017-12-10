@@ -48,6 +48,8 @@ public class DownloaderService extends IntentService {
     private static final int TYPE_NO_NETWORK = 102;
 
     private static String groupID;
+    private static String groupName;
+    private static String groupPictureDirectory;
     private static String downloadQuality;
     private static AppDatabase appDatabase;
     private static DatabaseReference mPicturesReference;
@@ -120,8 +122,23 @@ public class DownloaderService extends IntentService {
         appDatabase = AppDatabase.getInstance(getApplicationContext());
         if(!group.equals(groupID)) {
             Log.d(TAG, "Group changed, resetting listener");
-            Log.d(TAG, "groupID in service is: "+groupID);
-            Log.d(TAG, "group received from call is: "+group);
+            DatabaseReference groupReference = FirebaseDatabase.getInstance().getReference().child("groups").child(group);
+            groupReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    groupName = dataSnapshot.getValue(Group.class).getName();
+                    File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+groupID+"_"+groupName+"/");
+                    if(!storageDir.exists()) {
+                        storageDir.mkdirs();
+                    }
+                    Log.d(TAG, "storageDir: "+storageDir.getPath());
+                    groupPictureDirectory = storageDir.getPath();
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "Could not read group info");
+                }
+            });
             if (mPicEventListener != null ) {
                 mPicturesReference.removeEventListener(mPicEventListener);
             }
@@ -150,7 +167,9 @@ public class DownloaderService extends IntentService {
                     picturesGroup.setPicture_640(dataSnapshot.getValue(PicturesGroup.class).getPicture_640());
                     picturesGroup.setPicture_1280(dataSnapshot.getValue(PicturesGroup.class).getPicture_1280());
                     picturesGroup.setUser_id(dataSnapshot.getValue(PicturesGroup.class).getUser_id());
-
+                    String[] subs = picturesGroup.getPicture_640().split("/");
+                    final String fileName = subs[subs.length-1];
+                    picturesGroup.setLocalUri(groupPictureDirectory+fileName);
                     String containsPeople = picturesGroup.getContains_people().toString();
                     //Log.i("MCC", "onChildAdded " + picturesGroup.getUser_id());
 
@@ -158,39 +177,11 @@ public class DownloaderService extends IntentService {
                         @Override
                         public void onSuccess(Uri uri) {
                             picLow = uri.toString();       // Low pic
-                            Log.i("MCC", "onChildAdded (dlq is "+downloadQuality+") " + picLow);
                             if (downloadQuality.equals("Low")) {
                                 StorageReference pictureRef = mStorageReference.child(uri.toString());
-                                //try {
-                                    File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+groupID+"/");
-                                    if(!storageDir.exists()) {
-                                        storageDir.mkdirs();
-                                    }
-                                    Log.d(TAG, "storageDir: "+storageDir.getPath());
-                                    File localFile = new File(storageDir, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
+                                    File localFile = new File(groupPictureDirectory, fileName);
                                     DownloadTask downloadTask = new DownloadTask();
                                     downloadTask.execute(new DLparams(picLow, localFile));
-                                    //localFile.createNewFile();
-                                    /** localFile = File.createTempFile(
-                                            uri.toString(),
-                                            ".jpg",
-                                            storageDir
-                                    );*/
-                                    //FileUtils.copyURLToFile(new java.net.URL(picLow), localFile);
-                                    /**pictureRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                            picturesGroup.setLocalUri(localFile.getPath());
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "Unable to download image file.");
-                                        }
-                                    })*/
-                                //} catch (IOException e) {
-                                //    Log.d(TAG, "Unable to create file: "+e.getLocalizedMessage());
-                                //}
                             }
                         }
                     });
@@ -199,39 +190,11 @@ public class DownloaderService extends IntentService {
                         @Override
                         public void onSuccess(Uri uri) {
                             picHigh = uri.toString();       // High pic
-                            Log.i("MCC", "onChildAdded (dlq is "+downloadQuality+") " + picHigh);
+                            //Log.i("MCC", "onChildAdded (dlq is "+downloadQuality+") " + picHigh);
                             if (downloadQuality.equals("High")) {
-                                StorageReference pictureRef = mStorageReference.child(uri.toString());
-                                //try {
-                                File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+groupID+"/");
-                                if(!storageDir.exists()) {
-                                    storageDir.mkdirs();
-                                }
-                                Log.d(TAG, "storageDir: "+storageDir.getPath());
-                                File localFile = new File(storageDir, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
+                                File localFile = new File(groupPictureDirectory, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
                                 DownloadTask downloadTask = new DownloadTask();
                                 downloadTask.execute(new DLparams(picLow, localFile));
-                                //localFile.createNewFile();
-                                /** localFile = File.createTempFile(
-                                 uri.toString(),
-                                 ".jpg",
-                                 storageDir
-                                 );*/
-                                //FileUtils.copyURLToFile(new java.net.URL(picLow), localFile);
-                                /**pictureRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                picturesGroup.setLocalUri(localFile.getPath());
-                                }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Unable to download image file.");
-                                }
-                                })*/
-                                //} catch (IOException e) {
-                                //    Log.d(TAG, "Unable to create file: "+e.getLocalizedMessage());
-                                //}
                             }
                         }
                     });
@@ -240,39 +203,10 @@ public class DownloaderService extends IntentService {
                         @Override
                         public void onSuccess(Uri uri) {
                             picFull = uri.toString();       // Full
-                            Log.i("MCC", "onChildAdded (dlq is "+downloadQuality+") " + picFull);
                             if (downloadQuality.equals("Full")) {
-                                StorageReference pictureRef = mStorageReference.child(uri.toString());
-                                //try {
-                                File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES+"/"+groupID+"/");
-                                if(!storageDir.exists()) {
-                                    storageDir.mkdirs();
-                                }
-                                Log.d(TAG, "storageDir: "+storageDir.getPath());
-                                File localFile = new File(storageDir, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
+                                File localFile = new File(groupPictureDirectory, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
                                 DownloadTask downloadTask = new DownloadTask();
                                 downloadTask.execute(new DLparams(picLow, localFile));
-                                //localFile.createNewFile();
-                                /** localFile = File.createTempFile(
-                                 uri.toString(),
-                                 ".jpg",
-                                 storageDir
-                                 );*/
-                                //FileUtils.copyURLToFile(new java.net.URL(picLow), localFile);
-                                /**pictureRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                picturesGroup.setLocalUri(localFile.getPath());
-                                }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Unable to download image file.");
-                                }
-                                })*/
-                                //} catch (IOException e) {
-                                //    Log.d(TAG, "Unable to create file: "+e.getLocalizedMessage());
-                                //}
                             }
                         }
                     });
