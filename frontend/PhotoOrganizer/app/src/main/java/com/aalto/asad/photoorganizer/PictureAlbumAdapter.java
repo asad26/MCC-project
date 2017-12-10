@@ -71,7 +71,7 @@ public class PictureAlbumAdapter extends BaseAdapter {
 
         //Uri imageUri = Uri.fromFile(new File(imagePath.get(position)));
         //Glide.with(mContext).using(new FirebaseImageLoader()).load(pathReference).into(holder.imageView);
-        Glide.with(mContext).load(new File(uri)).centerCrop().into(holder.imageView);
+        Glide.with(mContext).load(uri).centerCrop().dontAnimate().into(holder.imageView);
         return convertView;
     }
 

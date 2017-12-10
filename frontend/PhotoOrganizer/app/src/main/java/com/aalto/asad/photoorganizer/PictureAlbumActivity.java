@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -36,6 +39,8 @@ public class PictureAlbumActivity extends AppCompatActivity implements OnTaskCom
     private DatabaseReference mGroupsReference;
     private ValueEventListener mGroupListener;
     private List<PictureInfo> allPictures;
+    private String sortMode;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,13 +98,13 @@ public class PictureAlbumActivity extends AppCompatActivity implements OnTaskCom
 
     private void reloadPicturesIntoView() {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String sortMode = sharedPref.getString("album_sort_mode", "");
+        sortMode = sharedPref.getString("album_sort_mode", "");
         String groupDirectory = sharedPref.getString("picture_directory_"+groupID, "");
         HashMap<String, ArrayList<String>> picturesMap = new HashMap<String, ArrayList<String>>();
         if (sortMode.equals("people") || sortMode.equals("")) {
             for (int i = 0; i < allPictures.size(); i++) {
                 PictureInfo picture = allPictures.get(i);
-                String uri = groupDirectory+picture.getLocalUri();
+                String uri = groupDirectory+"/"+picture.getLocalUri();
                 String people = picture.getContainsPeople();
                 Log.d(TAG, "Contains people says: "+people);
                 if (people.equals("true")) {
@@ -127,20 +132,21 @@ public class PictureAlbumActivity extends AppCompatActivity implements OnTaskCom
         } else {
             for (int i = 0; i < allPictures.size(); i++) {
                 PictureInfo picture = allPictures.get(i);
+                String uri = groupDirectory+"/"+picture.getLocalUri();
                 String author = picture.getUserName();
                 if (picturesMap.containsKey(picture.getUserName())) {
-                    String uri = picture.getLocalUri();
                     if(!picturesMap.get(picture.getUserName()).contains(uri)) {
                         picturesMap.get(picture.getUserName()).add(uri);
                     }
                 } else {
                     ArrayList<String> arrList = new ArrayList<String>();
-                    arrList.add(picture.getLocalUri());
+                    arrList.add(uri);
                     picturesMap.put(picture.getUserName() ,arrList);
                 }
             }
         }
         LinearLayout contents = scrollView.findViewById(R.id.scrolledContents);
+        contents.removeAllViews();
         for (Map.Entry<String, ArrayList<String>> entry: picturesMap.entrySet()) {
             View divider = LayoutInflater.from(getApplicationContext()).inflate(R.layout.album_view_divider, null);
             ((TextView)divider.findViewById(R.id.dividerText)).setText(entry.getKey());
@@ -159,6 +165,37 @@ public class PictureAlbumActivity extends AppCompatActivity implements OnTaskCom
                 }
             });
             contents.addView(picGrid);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.album_activity_menu, menu);
+        mMenu = menu;
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menuSort:
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                if (sortMode.equals("people") || sortMode.equals("")) {
+                    editor.putString("album_sort_mode", "author");
+                    mMenu.findItem(R.id.menuSort).setTitle("Sort by people vs landscape");
+                } else {
+                    editor.putString("album_sort_mode", "people");
+                    mMenu.findItem(R.id.menuSort).setTitle("Sort by author");
+                }
+                editor.commit();
+                String sortMode = sharedPref.getString("album_sort_mode", "");
+                reloadPicturesIntoView();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
