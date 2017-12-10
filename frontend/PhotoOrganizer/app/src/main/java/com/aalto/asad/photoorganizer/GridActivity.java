@@ -86,6 +86,13 @@ import okhttp3.Response;
  * Created by Asad on 11/8/2017.
  */
 
+/** This is how PictureAlbumActivity should be called from the album view
+ Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
+ intent.putExtra("Group", groupID);
+ startActivity(intent);
+ */
+
+
 public class GridActivity extends AppCompatActivity {
 
     private static final String TAG = "MCC";
@@ -186,10 +193,6 @@ public class GridActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
                 startActivity(intent);
-
-                /** Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
-                 intent.putExtra("Group", groupID);
-                 startActivity(intent);*/
 
                 // File[] imageFiles = loadImagesFromDirectory();
                 //if (imageFiles.length != 0) {
