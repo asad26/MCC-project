@@ -7,6 +7,9 @@ import logging
 from time import time
 import os,binascii
 import joinGroup
+import firebase_admin
+import uuid
+
 
 def main(kwargs_dict):
     logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
@@ -28,11 +31,12 @@ def create_group(db, groupname, username, timeToLive, userToken):
         members = {
             uid:userData
         }
+        expiry = get_expiry(int(timeToLive))
         data = {
             "owner": username,
             "ownerID": uid,
             "name": groupname,
-            "expiry":get_expiry(int(timeToLive)),
+            "expiry": expiry,
             "members":members
         }
         logging.debug("Pushing group to database")
@@ -45,6 +49,9 @@ def create_group(db, groupname, username, timeToLive, userToken):
         db.child("groups").child(groupID).child("members").child(uid).update({"QR":QR})
 
         db.child("users").child(uid).update({"groupID":groupID})
+
+        # set group id and expiry time in user token for Firebase Storage rules
+        setUserTokenParams(uid, groupID, expiry)
 
         returnData = {
             "groupID":groupID,
@@ -67,6 +74,24 @@ def get_expiry(timeToLive):
 def createQR(groupID, usrID):
     random = random = binascii.b2a_hex(os.urandom(15)).decode("utf-8")
     return groupID+'/'+usrID+'/'+random
+
+def setUserTokenParams(uid, groupID, expiry):
+    # TODO: firebase_admin is initialized too many times already
+    # please initialize only once in some appropriate place
+    # TODO: move this part to some common place
+    cred = firebase_admin.credentials.Certificate(config["serviceAccount"])
+    admin_app = firebase_admin.initialize_app(cred, name=str(uuid.uuid4()))
+    custom_claims = {
+        'groupID': groupID,
+        'groupExpiry': expiry
+    }
+    try:
+        firebase_admin.auth.set_custom_user_claims(uid, custom_claims, app=admin_app)
+    except:
+        # better to crash the app than try to hide the errors
+        raise
+    finally:
+        firebase_admin.delete_app(admin_app)
 
 if __name__ == "__main__":
     print(main(json.loads(sys.argv[1])))
