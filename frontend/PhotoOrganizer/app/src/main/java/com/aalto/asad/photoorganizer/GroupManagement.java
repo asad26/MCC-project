@@ -119,10 +119,14 @@ public class GroupManagement extends AppCompatActivity {
                                     if (response.isSuccessful()) {
                                         String res = response.body().string();
                                         Log.i(TAG, "executePost:ResponseSuccess " + res);
-                                        Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
-                                        viewGroupIntent.putExtra("Group", groupID);
-                                        startActivity(viewGroupIntent);
-                                        finish();
+                                        mFirebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                                            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                                                Intent viewGroupIntent = new Intent(getApplicationContext(), ViewGroup.class);
+                                                viewGroupIntent.putExtra("Group", groupID);
+                                                startActivity(viewGroupIntent);
+                                                finish();
+                                            }
+                                        });
                                     } else {
                                         Log.i(TAG, "executePost:ResponseFailure");
                                     }
