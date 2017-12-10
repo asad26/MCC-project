@@ -10,6 +10,7 @@ public class PhotoAlbum {
     private String numOfPhotos;
     private String thumbnail;
     private int cloudImage;
+    private String groupID;
 
     public PhotoAlbum() {
     }
@@ -56,5 +57,13 @@ public class PhotoAlbum {
 
     public void setCloudImage(int cloudImage) {
         this.cloudImage = cloudImage;
+    }
+
+    public String getGroupID() {
+        return groupID;
+    }
+
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
     }
 }

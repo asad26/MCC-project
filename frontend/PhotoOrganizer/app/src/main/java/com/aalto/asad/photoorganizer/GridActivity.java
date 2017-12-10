@@ -86,13 +86,6 @@ import okhttp3.Response;
  * Created by Asad on 11/8/2017.
  */
 
-/** This is how PictureAlbumActivity should be called from the album view
- Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
- intent.putExtra("Group", groupID);
- startActivity(intent);
- */
-
-
 public class GridActivity extends AppCompatActivity {
 
     private static final String TAG = "MCC";
@@ -186,26 +179,6 @@ public class GridActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
                 startActivity(intent);
-                
-                // File[] imageFiles = loadImagesFromDirectory();
-                //if (imageFiles.length != 0) {
-                    //String thumbnail = imagesPath.get(imagesPath.size() - 1);
-                    //PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
-                    //albumList.add(a);
-
-                /**
-                loadImagesFromDirectory(getApplicationContext());
-                String thumbnail = imagesPath.get(imagesPath.size() - 1);
-                PhotoAlbum a = new PhotoAlbum("Private", String.valueOf(imagesPath.size()), thumbnail, R.drawable.not_cloud);
-                albumList.add(a);
-                Intent intent = new Intent(GridActivity.this, GalleryActivity.class);
-                startActivity(intent); */
-
-               // }
-               // else {
-//                    Log.i(TAG, "Gallery is empty");
-//                    Toast.makeText(GridActivity.this, "No private pictures", Toast.LENGTH_LONG).show();
-              //  }
             }
         });
 

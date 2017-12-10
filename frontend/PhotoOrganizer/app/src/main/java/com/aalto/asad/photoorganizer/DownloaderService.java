@@ -191,10 +191,9 @@ public class DownloaderService extends IntentService {
                         public void onSuccess(Uri uri) {
                             picLow = uri.toString();       // Low pic
                             if (downloadQuality.equals("Low") || downloadQuality.equals("")) {
-                                StorageReference pictureRef = mStorageReference.child(uri.toString());
-                                    File localFile = new File(groupPictureDirectory, fileName);
-                                    DownloadTask downloadTask = new DownloadTask();
-                                    downloadTask.execute(new DLparams(picLow, localFile));
+                                File localFile = new File(groupPictureDirectory, fileName);
+                                DownloadTask downloadTask = new DownloadTask();
+                                downloadTask.execute(new DLparams(picLow, localFile));
                             }
                         }
                     });
@@ -204,7 +203,7 @@ public class DownloaderService extends IntentService {
                         public void onSuccess(Uri uri) {
                             picHigh = uri.toString();       // High pic
                             if (downloadQuality.equals("High")) {
-                                File localFile = new File(groupPictureDirectory, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
+                                File localFile = new File(groupPictureDirectory, fileName);
                                 DownloadTask downloadTask = new DownloadTask();
                                 downloadTask.execute(new DLparams(picHigh, localFile));
                             }
@@ -216,7 +215,7 @@ public class DownloaderService extends IntentService {
                         public void onSuccess(Uri uri) {
                             picFull = uri.toString();       // Full
                             if (downloadQuality.equals("Full")) {
-                                File localFile = new File(groupPictureDirectory, "tmp"+Long.toString(Calendar.getInstance().getTimeInMillis())+".jpg");
+                                File localFile = new File(groupPictureDirectory, fileName);
                                 DownloadTask downloadTask = new DownloadTask();
                                 downloadTask.execute(new DLparams(picFull, localFile));
                             }
