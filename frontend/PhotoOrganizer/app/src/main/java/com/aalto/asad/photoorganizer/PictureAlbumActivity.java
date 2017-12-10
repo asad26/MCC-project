@@ -173,6 +173,10 @@ public class PictureAlbumActivity extends AppCompatActivity implements OnTaskCom
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.album_activity_menu, menu);
         mMenu = menu;
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if(sharedPref.getString("album_sort_mode", "").equals("author")) {
+            mMenu.findItem(R.id.menuSort).setTitle("Sort by people vs landscape");
+        }
         return true;
     }
 
