@@ -23,14 +23,6 @@ public class PhotoAlbum {
         this.cloudImage = cloudImage;
     }
 
-    public PhotoAlbum(String name, String numOfPhotos, String thumbnail, int cloudImage, String groupID) {
-        this.name = name;
-        this.numOfPhotos = numOfPhotos;
-        this.thumbnail = thumbnail;
-        this.cloudImage = cloudImage;
-        this.groupID = groupID;
-    }
-
     public String getName() {
         return name;
     }
