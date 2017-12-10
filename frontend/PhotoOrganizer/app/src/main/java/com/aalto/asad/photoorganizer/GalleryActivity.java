@@ -70,6 +70,9 @@ public class GalleryActivity extends AppCompatActivity {
         if (!groupDirectory.isEmpty()) {
             String[] subs = groupDirectory.split("_");
             String albumName = subs[subs.length-1];
+            String tmp = subs[0];
+            String[] subs2 = tmp.split(" ");
+            String groupID = subs2[subs2.length-1];
             File[] groupImagesPath = loadGroupImagesFromDirectory(GalleryActivity.this, groupDirectory);
             Log.i(TAG, "GalleryActivity length " + groupImagesPath.length);
             if (groupImagesPath.length != 0) {
@@ -77,7 +80,7 @@ public class GalleryActivity extends AppCompatActivity {
                     groupImages.add(aListFile.getAbsolutePath());
                 }
                 String thumbnail = groupImages.get(groupImages.size() - 1);
-                prepareAlbum(albumName, String.valueOf(groupImages.size()), thumbnail, R.drawable.cloud);
+                prepareAlbum(albumName, groupID, String.valueOf(groupImages.size()), thumbnail, R.drawable.cloud);
             } else {
                 Log.i(TAG, "No group pictures");
                 Toast.makeText(GalleryActivity.this, "No group pictures", Toast.LENGTH_LONG).show();
@@ -96,21 +99,29 @@ public class GalleryActivity extends AppCompatActivity {
                 privateImages.add(aListFile.getAbsolutePath());
             }
             String thumbnail = privateImages.get(privateImages.size() - 1);
-            prepareAlbum("Private", String.valueOf(privateImages.size()), thumbnail, R.drawable.not_cloud);
+            prepareAlbum("Private", "0", String.valueOf(privateImages.size()), thumbnail, R.drawable.not_cloud);
         }
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                if (position == 0) {
-                Toast.makeText(GalleryActivity.this, "" + position, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
+                String albumID = albumList.get(position).getID();
+                if(albumID.equals("0")){
+                    startActivity(new Intent(GalleryActivity.this, PrivateImageActivity.class));
+                }else{
+                    Intent intent = new Intent(getApplicationContext(), PictureAlbumActivity.class);
+                    intent.putExtra("Group", albumID);
+                    startActivity(intent);
                 }
+                //if (position == 0) {
+                //Toast.makeText(GalleryActivity.this, "" + position, Toast.LENGTH_SHORT).show();
+                //
+                //}
             }
         });
     }
 
-    public void prepareAlbum(String name, String numOfPhotos, String thumbnail, int pic) {
-        PhotoAlbum a = new PhotoAlbum(name, numOfPhotos,thumbnail, pic);
+    public void prepareAlbum(String name, String albumID, String numOfPhotos, String thumbnail, int pic) {
+        PhotoAlbum a = new PhotoAlbum(name, albumID, numOfPhotos,thumbnail, pic);
         albumList.add(a);
         adapter.notifyDataSetChanged();
     }

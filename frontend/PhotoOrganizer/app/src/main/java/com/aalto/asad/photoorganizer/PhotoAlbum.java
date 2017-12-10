@@ -6,6 +6,7 @@ package com.aalto.asad.photoorganizer;
 
 public class PhotoAlbum {
     private String name;
+    private String albumID;
     private String numOfPhotos;
     private String thumbnail;
     private int cloudImage;
@@ -14,8 +15,9 @@ public class PhotoAlbum {
     public PhotoAlbum() {
     }
 
-    public PhotoAlbum(String name, String numOfPhotos, String thumbnail, int cloudImage) {
+    public PhotoAlbum(String name, String id, String numOfPhotos, String thumbnail, int cloudImage) {
         this.name = name;
+        this.albumID = id;
         this.numOfPhotos = numOfPhotos;
         this.thumbnail = thumbnail;
         this.cloudImage = cloudImage;
@@ -31,6 +33,10 @@ public class PhotoAlbum {
 
     public String getName() {
         return name;
+    }
+
+    public String getID() {
+        return albumID;
     }
 
     public void setName(String name) {
