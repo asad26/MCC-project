@@ -2,7 +2,7 @@ import http.client, urllib.parse
 import pyrebase
 import logging
 
-logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 logging.debug("Running leave or delete group test")
 
