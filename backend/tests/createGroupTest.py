@@ -4,7 +4,7 @@ import json
 import logging
 import urllib
 
-logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 logging.debug("Running group creation test")
 

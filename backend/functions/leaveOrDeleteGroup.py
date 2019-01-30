@@ -8,7 +8,7 @@ from deleteExpired import deleteGroup
 from joinGroup import isInGroup
 
 def main(kwargs_dict):
-    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    logging.basicConfig(filename='/tmp/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
     logging.debug("Running leave or delete group")
     firebase = pyrebase.initialize_app(config)
     db = firebase.database()

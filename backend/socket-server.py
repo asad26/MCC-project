@@ -6,7 +6,7 @@ import sys
 import importlib
 import traceback
 
-logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 # Checking the available functions
 function_folder = "functions"

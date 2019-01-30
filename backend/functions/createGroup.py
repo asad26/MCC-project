@@ -12,7 +12,7 @@ import uuid
 
 
 def main(kwargs_dict):
-    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    logging.basicConfig(filename='/tmp/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
     firebase = pyrebase.initialize_app(config)
     db = firebase.database()
     return create_group(db, **kwargs_dict)

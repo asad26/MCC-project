@@ -7,7 +7,7 @@ if (len(sys.argv) != 3):
     print("Usage: " + sys.argv[0] +" group_id " + "upload_file")
     exit()
 
-logging.basicConfig(filename='logs/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='/tmp/server-test.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 logging.debug("Running picture processing test")
 

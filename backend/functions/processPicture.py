@@ -13,7 +13,7 @@ import tempfile
 
 
 def main(kwargs_dict):
-    logging.basicConfig(filename='logs/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
+    logging.basicConfig(filename='/tmp/server.log',format='%(asctime)s %(message)s', level=logging.DEBUG)
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = config["serviceAccount"]
 
     firebase = pyrebase.initialize_app(config)
